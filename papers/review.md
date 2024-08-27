@@ -93,10 +93,55 @@ $$
 
 The sets do not need to be same size. Take query "ideas of March" and Document "Caesar died in March" for example. $JACCARD(q,d)$ is $1 \over 6$. However, Jaccard has three limitations to apply in *Ranked Retrieval*: **1)** It does not consider *Term frequency*. Hinged on basic knowledge, if a query were "CSE student" and documents d1 "CSE at UTA", d2 "CSE CSE at UTA", d2 should be ranked as higher than d1. Jaccard does not reflect *Term frequency*, resulting in the same score as $1 \over 4$, since it is the set operation. **2)** The *jaccard coefficient* does not handle the important word required to be weighted. Suppose two queries q1 "CSE student" and "The CSE student". Although the most important word is 'CSE' based on the common knowledge, Jaccard tackle all words as a same weight. The final problem is that **3)** the coefficient does not normalize the length of the document. If the previous example d1, d2 had additional words not related with the query which each length is 20 and 1000, d1 becomes highly ranked than d2 since the denominator of the coefficient are drastically larger.
 
-*Cosine Similarity* for next class?
+---
+<!-- Class Notes -->
+Term Frequency
+- binary incidence matrix
+    - represented a word only appear or not in documents
+- count matrix
+    - represented all the number of words in documents
+
+Bag of words model
+- a model which does not consider the order of words in a document. For example, John is bigger than Mary and Mary is bigger than John have different meaning even if they have same number of words.
+
+Since tf=10 , tf=1 does not represent 10 times more relevant,
+*Log frequency weighting* is used
+(Assignment, Test 등에서 $tf_t,d$ otherwise일 때 0임을 꼭 정의하기)
+- $tf-matching-score(q,d) = \sum_{}(1 + \log{tf_{t,d}})$
+- Exercise 1. A=1
+- 2. A= (1+log_10 3) + (1 + log_10 3)
+- 3. ?
+- The score does not have upper bound while Jaccard has.
+- this score reflects the frequency of terms in documents
+
+However, It does not solve the problem that words are addressed as same weights.
+
+In order to weight each word, the concept of frequencyc in collection and binary incidence matrix are used. *frequency in collection* refers to frequencies among all documents.
+
+If a word presented at few documents, it means that the word is so rare that the word should be weighted high.
+
+df_t? cf_t?  둘 중 하나가 binary values
+
+WIth $idf_t = \log_10 {N \over df_t}$, which document frequency $df_t$ becomes the denominator of log, the score reflects the document frequency if the higher the document frequenccy become, (it means common words), become low score.
+
+Howeveer, idf has little effect on raknign for one-term queries. it requres to have at least two terms.
+
+$w_{t,d} = (1 + log_{tf_{t,d}}) \times \log{N \over df_t}
+
+**Vector Space Model**
+- Each term becomes axis of dimensions.
+
+cf. If we concatenated two n-dimension vectors, it becomes n+1-dimensional vector.
+
+Only with TF-idf and using Euclidean distance in the vector space model, the length of the vector is not considered, which means that the size of the document is not considered.
+-> cosine similarity
+
+**Length Normalization**
+* Why do woe need Length noramalization? I do not understand yet ...
+cf. consime similiarity in TF-idf in range 0-1 value.
 
 
-
+---
 
 
 #### References
