@@ -33,7 +33,7 @@ Simpson's Paradox refers that the result of statistics or probability data is re
 
 **Definition of keywords in IR Systems**
 
-In order to address each language in IR, the common definition of terminologies is required. A *word* is a basic unit of language which the unit is separated by whitespace or punctuation in a text. A *term* is a meaningful unit indexed and used in an IR system. The difference from *word* is that *term* is the basic units of meaning used to match documents with queries in the system. *Term* is often called as normalized *word*. A *token* is a unit of text extracted from a document during the tokenization process. Tokenization is the proceess of breaking text into individual pieces which has multiple options to conduct the process. A *type* refers to the distinct class of tokens in a text. For instance, in the sentence "A dog sat on the mat with another dog", the tokens are ['A', 'dog', 'sat', 'on', 'the', 'mat', 'with', 'another', 'dog'], but the types are ['A', 'dog', 'sat', 'on', the', 'mat', 'with', 'another'], where 'dog' are repeated but only counted once as type. Additionally, *type* and *term* are same as in most cases.
+In order to address each language in IR, the common definition of terminologies is required. A *word* is a basic unit of language which the unit is separated by whitespace or punctuation in a text. A *term* is a meaningful unit, indexed and used in an IR system. The difference from *word* is that *term* is the basic units of meaning used to match documents with queries in the system. Additionally, *Term* is often called as normalized *word*. A *token* is a unit of text extracted from a document during the tokenization process. Tokenization is the proceess of breaking text into individual pieces which has multiple options to conduct the process. A *type* refers to the distinct class of tokens in a text. For instance, in the sentence "A dog sat on the mat with another dog", the tokens are ['A', 'dog', 'sat', 'on', 'the', 'mat', 'with', 'another', 'dog'], but the types are ['A', 'dog', 'sat', 'on', the', 'mat', 'with', 'another'], where 'dog' are repeated but only counted once as type. Due to their similarity, *type* and *term* are referred same as in most cases.
 
 In summary, **1)** *word* is a string in a text, **2)** *token* is derived from *word* after tokenization processes which have their own pros and cons, **3)** *type* and *term* are referred to a list grouped the *token*s through the process of normalization under rules such as spelling or morphology. Hence, *Normalization* and *tokenization* are entailed.
 
@@ -61,6 +61,7 @@ $$
 \begin{array}{ccc|ccc}
 \hline
 \bf{\text{Rule}} & & & \bf{\text{Example}} & & \\
+\hline
 \text{sses} & \to & \text{ss} & \text{caresses} & \to & \text{caress} \\
 \text{ies} & \to & \text{i} & \text{ponies} & \to & \text{poni} \\
 \text{ss} & \to & \text{ss} & \text{caress} & \to & \text{caress} \\
@@ -87,12 +88,15 @@ $$
 JACCARD(A, B) = {|A \cap B| \over |A \cup B|} \quad ,(A \not = \emptyset \text{ or } B \not = \emptyset) \\
 \\
 JACCARD(A, A) = 1 \\
-JACCARD(A, B) = 0 \text{ if } A \cap B = 0
+JACCARD(A, B) = 0 \text{, if } A \cap B = 0
 $$
 
 The sets do not need to be same size. Take query "ideas of March" and Document "Caesar died in March" for example. $JACCARD(q,d)$ is $1 \over 6$. However, Jaccard has three limitations to apply in *Ranked Retrieval*: **1)** It does not consider *Term frequency*. Hinged on basic knowledge, if a query were "CSE student" and documents d1 "CSE at UTA", d2 "CSE CSE at UTA", d2 should be ranked as higher than d1. Jaccard does not reflect *Term frequency*, resulting in the same score as $1 \over 4$, since it is the set operation. **2)** The *jaccard coefficient* does not handle the important word required to be weighted. Suppose two queries q1 "CSE student" and "The CSE student". Although the most important word is 'CSE' based on the common knowledge, Jaccard tackle all words as a same weight. The final problem is that **3)** the coefficient does not normalize the length of the document. If the previous example d1, d2 had additional words not related with the query which each length is 20 and 1000, d1 becomes highly ranked than d2 since the denominator of the coefficient are drastically larger.
 
 *Cosine Similarity* for next class?
+
+
+
 
 
 #### References
