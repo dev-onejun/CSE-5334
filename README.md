@@ -11,7 +11,9 @@ Fall 2024, Computer Science and Engineering Department, The University of Texas 
     - Research Interests: Computer Vision and Machine Learning
 * TA: Subhanjanaa Uppu, Rahul Vanukuri
     - sxu7492 at mavs dot uta dot edu
+        - Office hours: Mon, Wed 16:30-17:30, ERB 512
     - rxv6501 at mavs dot uta dot edu
+        - Office hours: Thu, Fri 15:30-16:30, ERB501/ERB512
 
 ## Expectations
 
