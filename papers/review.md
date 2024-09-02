@@ -27,13 +27,13 @@ $$
 
 #### II. Literature Review
 
-**Simpson's Paradox**
+##### A. Simpson's Paradox
 
-Simpson's Paradox refers that the result of statistics or probability data is reversed when the whole group of data is dividied into several small groups. The situation in UC Berkeley Gender Bias [[1](#mjx-eqn-1)] representatively showed the paradox.
+Simpson's Paradox refers to the result of statistics or probability data is reversed when the whole group of data is divided into several small groups. The situation in UC Berkeley Gender Bias [[1](#mjx-eqn-1)] representatively showed the paradox.
 
-**Definition of keywords in IR Systems**
+##### B. Definition of keywords in IR Systems
 
-In order to address each language in IR, the common definition of terminologies is required. A *word* is a basic unit of language which the unit is separated by whitespace or punctuation in a text. A *term* is a meaningful unit, indexed and used in an IR system. The difference from *word* is that *term* is the basic units of meaning used to match documents with queries in the system. Additionally, *Term* is often called as normalized *word*. A *token* is a unit of text extracted from a document during the tokenization process. Tokenization is the proceess of breaking text into individual pieces which has multiple options to conduct the process. A *type* refers to the distinct class of tokens in a text. For instance, in the sentence "A dog sat on the mat with another dog", the tokens are ['A', 'dog', 'sat', 'on', 'the', 'mat', 'with', 'another', 'dog'], but the types are ['A', 'dog', 'sat', 'on', the', 'mat', 'with', 'another'], where 'dog' are repeated but only counted once as type. Due to their similarity, *type* and *term* are referred same as in most cases.
+In order to address each language in IR, the common definition of terminologies is required. A **word** is a basic unit of language which the unit is separated by whitespace or punctuation in a text. A **term** is a meaningful unit, indexed and used in an IR system. The difference from **word** is that **term** is the basic units of meaning used to match documents with queries in the system. Additionally, **Term** is often called as normalized **word**. A **token** is a unit of text extracted from a document during the tokenization process. Tokenization is the proceess of breaking text into individual pieces which has multiple options to conduct the process. A **type** refers to the distinct class of tokens in a text. For instance, in the sentence "A dog sat on the mat with another dog", the tokens are ['A', 'dog', 'sat', 'on', 'the', 'mat', 'with', 'another', 'dog'], but the types are ['A', 'dog', 'sat', 'on', the', 'mat', 'with', 'another'], where 'dog' are repeated but only counted once as type. Due to their similarity, **type** and **term** are referred same as in most cases.
 
 In summary, **1)** *word* is a string in a text, **2)** *token* is derived from *word* after tokenization processes which have their own pros and cons, **3)** *type* and *term* are referred to a list grouped the *token*s through the process of normalization under rules such as spelling or morphology. Hence, *Normalization* and *tokenization* are entailed.
 
@@ -74,15 +74,13 @@ $$
 
 Google, the latest and most advanced search engine, has utilized *stopwords*, *normalization*, *tokenization*, *lowercasing*, *stemming*, non-latin alphabets, umlauts, compunds, *numbers*.
 
-**Ranked Retrieval**
+##### C. Ranked Retrieval
 
-The question may arise at this point. "How could we match the query of the user to give results?" If the IR system only took boolean search, this question becomes simple. However, there are two problems: **1)** The most queries from users are not the type of the question answered as yes or no. **2)** Boolean queries often resultin either too few (almost zero) or too many (1000s) results. What the IR system needs is the top 10 results which users can focus on their answers.
+The question may arise at this point. "How could we match the query of the user to give results?" If the IR system only took boolean search, this question becomes simple. However, there are two problems: **1)** The most queries from users are not the type of the question answered as yes or no. **2)** Boolean queries often result in either too few (almost zero) or too many (1000s) results. What the IR system needs is the top 10 results which users can focus on their answers.
 
-*Ranked retrieval* gives score based on the similiarity between queries and documents. The score is normally in range 0 to 1. The rule of *Ranked retrieval* is that **1)** the more frequent a query term in the document, the higher score the document get and **2)** the more query terms occur in the document, the higher score the document get. In addition, **3)** the length of the document should be considered in both rules. These three elements derive a conflict so that various algorithms are selected in each optimal situation;
+**Ranked retrieval** gives score based on the similiarity between queries and documents. The score is normally in range 0 to 1. The rule of **Ranked retrieval** is that **1)** the more frequent a query term in the document, the higher score the document get and **2)** the more query terms occur in the document, the higher score the document get. In addition, **3)** the length of the document should be considered in both rules. These three elements derive a conflict so that various algorithms are selected in each optimal situation;
 
-1. Jaccard coefficient
-
-*Jaccard coefficient* is a common value to measure the overlap of two sets. Let $A$ and $B$ are two different sets,
+**Jaccard coefficient** is a common value to measure the overlap of two sets. Let $A$ and $B$ are two different sets,
 
 $$
 JACCARD(A, B) = {|A \cap B| \over |A \cup B|} \quad ,(A \not = \emptyset \text{ or } B \not = \emptyset) \\
@@ -91,58 +89,106 @@ JACCARD(A, A) = 1 \\
 JACCARD(A, B) = 0 \text{, if } A \cap B = 0
 $$
 
-The sets do not need to be same size. Take query "ideas of March" and Document "Caesar died in March" for example. $JACCARD(q,d)$ is $1 \over 6$. However, Jaccard has three limitations to apply in *Ranked Retrieval*: **1)** It does not consider *Term frequency*. Hinged on basic knowledge, if a query were "CSE student" and documents d1 "CSE at UTA", d2 "CSE CSE at UTA", d2 should be ranked as higher than d1. Jaccard does not reflect *Term frequency*, resulting in the same score as $1 \over 4$, since it is the set operation. **2)** The *jaccard coefficient* does not handle the important word required to be weighted. Suppose two queries q1 "CSE student" and "The CSE student". Although the most important word is 'CSE' based on the common knowledge, Jaccard tackle all words as a same weight. The final problem is that **3)** the coefficient does not normalize the length of the document. If the previous example d1, d2 had additional words not related with the query which each length is 20 and 1000, d1 becomes highly ranked than d2 since the denominator of the coefficient are drastically larger.
+The sets do not need to be same size. Take query "ideas of March" and Document "Caesar died in March" for example. $JACCARD(q,d)$ is $1 \over 6$. However, Jaccard has three limitations to apply in **Ranked Retrieval**: **1)** It does not consider the frequency of terms. Hinged on basic knowledge, if a query were "CSE student" and documents $d_1$ "CSE at UTA", $d_2$ "CSE CSE at UTA", $d_2$ should be ranked as higher than $d_1$. Nevertheless, they got the same score as $1 \over 4$ in Jaccard, since it is the set operation. **2)** The **Jaccard coefficient** does not handle the important word where important information is implicated. Suppose two queries $q_1$ "CSE student" and $q_2$ "The CSE student". Although the most important word is 'CSE' based on the common knowledge, Jaccard tackle all words as a same weight. The last problem is that **3)** the coefficient does not normalize the length of the document. If the previous example, $d_1$ and $d_2$, had additional words not related with the query which each length is 20 and 1,000, $d_1$ becomes highly ranked than $d_2$ since the denominator of the coefficient are drastically larger.
 
----
-<!-- Class Notes -->
-Term Frequency
-- binary incidence matrix
-    - represented a word only appear or not in documents
-- count matrix
-    - represented all the number of words in documents
+In order to replace **Jaccard**, three matrix are followed;
 
-Bag of words model
-- a model which does not consider the order of words in a document. For example, John is bigger than Mary and Mary is bigger than John have different meaning even if they have same number of words.
+**1) Binary incidence matrix** shows whether each term is appear in each document or not. For instance, the $\text{Tab. 2}$ shows the appearance of each term in each row.
 
-Since tf=10 , tf=1 does not represent 10 times more relevant,
-*Log frequency weighting* is used
-(Assignment, Test 등에서 $tf_t,d$ otherwise일 때 0임을 꼭 정의하기)
-- $tf-matching-score(q,d) = \sum_{}(1 + \log{tf_{t,d}})$
-- Exercise 1. A=1
-- 2. A= (1+log_10 3) + (1 + log_10 3)
-- 3. ?
-- The score does not have upper bound while Jaccard has.
-- this score reflects the frequency of terms in documents
+$$
+\text{Table 2. Example of Binary Incidence Matrix} \\
+\begin{array}{ccccccc}
+& \text{Anthony and Cleopatra} & \text{Julius Caesar} & \text{The Tempest} & \text{Hamlet} & \text{Othello} & \text{Macbeth} \\
+\text{ANTHONY} & 1 & 1 & 0 & 0 & 0 & 1 \\
+\text{BRUTUS} & 1 & 1 & 0 & 1 & 0 & 0 \\
+\text{CAESAR} & 1 & 1 & 0 & 1 & 1 & 1 \\
+\text{CALPURNIA} & 0 & 1 & 0 & 0 & 0 & 0 \\
+\text{CLEOPATRA} & 1 & 0 & 0 & 0 & 0 & 0 \\
+\text{MERCY} & 1 & 0 & 1 & 1 & 1 & 1 \\
+\text{WORSER} & 1 & 0 & 1 & 1 & 1 & 0
+\end{array}
+$$
 
-However, It does not solve the problem that words are addressed as same weights.
+**2) Count matrix** shows the number of times each terms appears in each document. For instance, the $\text{Tab. 3}$ shows the number of times each term appears in each row.
 
-In order to weight each word, the concept of frequencyc in collection and binary incidence matrix are used. *frequency in collection* refers to frequencies among all documents.
+$$
+\text{Table 3. Example of Count Matrix} \\
+\begin{array}{ccccccc}
+& \text{Anthony and Cleopatra} & \text{Julius Caesar} & \text{The Tempest} & \text{Hamlet} & \text{Othello} & \text{Macbeth} \\
+\text{ANTHONY} & 157 & 73 & 0 & 0 & 0 & 0 \\
+\text{BRUTUS} & 4 & 157 & 0 & 2 & 0 & 0 \\
+\text{CAESAR} & 232 & 227 & 0 & 0 & 0 & 0 \\
+\text{CALPURNIA} & 0 & 10 & 0 & 0 & 0 & 0 \\
+\text{CLEOPATRA} & 57 & 0 & 0 & 0 & 0 & 0 \\
+\text{MERCY} & 2 & 0 & 3 & 8 & 5 & 8 \\
+\text{WORSER} & 2 & 0 & 1 & 1 & 1 & 5
+\end{array}
+$$
 
-If a word presented at few documents, it means that the word is so rare that the word should be weighted high.
+For the top of the paper (class), only **bag of words** models are utilized. **Bag of words** refers to the representation of text which describes the presence of words within the text data without considering the order in which they appear.
 
-df_t? cf_t?  둘 중 하나가 binary values
+**Term Frequency** $\text{tf}_{t,d}$ is the number of times that the term $t$ appears in the document $d$. However, the $\text{tf}$ alone itself is not enough to understand the importance of the term in the document. For instance, $\text{tf}_{t_1, d} = 10$ does not mean that the $t_1$ is 10 times more important than $t_2$ where $\text{tf}_{t_2, d} = 1$. To solve this problem, **Log Frequency Weighting** was proposed. The log frequency weight $w_{t,d}$ is defined as follows:
 
-WIth $idf_t = \log_10 {N \over df_t}$, which document frequency $df_t$ becomes the denominator of log, the score reflects the document frequency if the higher the document frequenccy become, (it means common words), become low score.
+$$
+\begin{array}{c|cc}
+w_{t,d} = & 1 + \log_{10}(\text{tf}_{t,d}) & \text{if } \text{tf}_{t,d} > 0 \\
+& 0 & \text{otherwise}
+\end{array} \\
+\mathbf{\text{NOTICE THAT DEFINING 0 FOR OTERHWISE CASE IS CRITICAL IN ASSIGNEMENTS OR EXAMS}}
+$$
 
-Howeveer, idf has little effect on raknign for one-term queries. it requres to have at least two terms.
+With **Log Frequency Weighting**, the **Ranked Retrieval** score, from the previous $\text{tf-matching-scroe}(q, d) = \text{tf}_{t,d}$, $\text{tf-matching-score}(q, d)$ for term $t$ in both query $q$ and document $d$ is calculated as follows:
 
-$w_{t,d} = (1 + log_{tf_{t,d}}) \times \log{N \over df_t}
+$$
+\text{tf-matching-score}(q, d) = \sum_{t \in q \cap d} w_{t,d} = \sum_{t \in q \cap d} (1 + \log(\text{tf}_{t,d}))
+$$
 
-**Vector Space Model**
-- Each term becomes axis of dimensions.
+where the score is 0 if the term does not appear in the document.
 
-cf. If we concatenated two n-dimension vectors, it becomes n+1-dimensional vector.
+The score does not have an upper bound unlike the **Jaccard Matching Score** and reflects the frequency of the term in the document. However, the score does not consider the weight of the term such as 'a', 'the', and 'is' which are common among all documents. Rare terms are more informative than common terms so that the score, high weights fore rare terms and low eights for common terms, is required.
 
-Only with TF-idf and using Euclidean distance in the vector space model, the length of the vector is not considered, which means that the size of the document is not considered.
--> cosine similarity
+**Collection frequency** refers to the total frequency of the term in a collection, a set of all documents. In other words, **collection Frequency** $\text{cf}_t$ is <ins>the number of terms</ins>. The **document frequency** $\text{df}_t$ is <ins>the number of documents</ins> that contain term $t$, a sum of a binary value whether the term is presented in the document or not. With $\text{df}_t$, the **Inverse Document Frequency** $\text{idf}_t$ is calculated as follows:
 
-**Length Normalization**
-* Why do woe need Length noramalization? I do not understand yet ...
-cf. consime similiarity in TF-idf in range 0-1 value.
+$$
+\text{idf}_t = \log_{10}\left(\frac{N}{\text{df}_t}\right)
+$$
 
+where $N$ refers to the number of all documents in the collection. The calculated value $\text{idf}_t$ becomes lower if the term appears in many documents. For example, if a term 'the' appears in all 1,000 documents ($\text{df}_t = 1,000$), the $\text{idf}_t$ is 0.
 
----
+As a result, with the **Log Frequency Weighting**, the weight of **Term Frequency-Inverse Document Frequency** ($\text{tf-idf}$), a idf weighting, is calculated as follows:
 
+$$
+w_{t,d} = (1 + \log_{10}(\text{tf}_{t,d})) \times \log_{10}\left(\frac{N}{\text{df}_t}\right)
+$$
+
+Still, the $\text{idf}$ is ineffective for one-term queries.
+
+**3) TF-IDF matrix** shows the $tf-idf$ weights for each term in each document. For instance, the $\text{Tab. 4}$ shows the $tf-idf$ weights for each term in each row.
+
+$$
+\text{Table 4. Example of TF-IDF Matrix} \\
+\begin{array}{ccccccc}
+& \text{Anthony and Cleopatra} & \text{Julius Caesar} & \text{The Tempest} & \text{Hamlet} & \text{Othello} & \text{Macbeth} \\
+\text{ANTHONY} & 5.25 & 3.18 & 0 & 0 & 0 & 0.35 \\
+\text{BRUTUS} & 1.21 & 6.10 & 0 & 1.0 & 0 & 0 \\
+\text{CAESAR} & 8.59 & 2.54 & 0 & 1.51 & 0.25 & 0 \\
+\text{CALPURNIA} & 0 & 1.54 & 0 & 0 & 0 & 0 \\
+\text{CLEOPATRA} & 2.85 & 0 & 0 & 0 & 0 & 0 \\
+\text{MERCY} & 1.51 & 0 & 1.90 & 0.12 & 5.25 & 0.88 \\
+\text{WORSER} & 1.37 & 0 & 0.11 & 4.15 & 0.25 & 1.95
+\end{array}
+$$
+
+The **vector space model** is a model in which each document is represented as a vector in a $N_t$-dimensional space where $N_t$ is **Collection frequency** $\text{cf}_t$. Queries are also represented as vectors in the same space. Two perspectives are available to calculate the similarity to between the query and the documents to derive the **Ranked Retrieval** score; **1) Euclidean distance** and **2) Cosine similarity**.
+
+cf. Each term becomes axis of dimensions. If we concatenated two n-dimension vectors, it becomes (n+1)-dimensional vector. For instance, if we concatenate two squares in 2D, it becomes a rectangle in 3D. (BUT I THINK IT CAN DEPENDS ON WHERE WE CONCATENATE. IF WE CONCATENATE 3-DIMENSIONAL VECTORS IN AXIS 0, IT BECOMES 3-DIMENSIONAL VECTOR BUT IF WE CONCATENATE IN AXIS 1, IT BECOMES 6-DIMENSIONAL VECTOR)
+
+(Skip for the summary of Euclidean distance) However, **1) Euclidean distance** is not suitable for the **Ranked Retrieval** because the distance is not normalized. The distance is affected by the length of the document. For instance, the distance between the query and the document is larger if the document is longer. Using angle instead of distance, **2) Cosine similiarity** is not affected by the length of the document. In other words, the **cosine similarity** is implicated the step of the length normalization which makes a document vector to have a unit vector.
+
+$$
+\text{Cosine Similarity} = \frac{\vec{q} \cdot \vec{d}}{||\vec{q}|| \times ||\vec{d}||} \\
+\mathbf{\text{ONLY FOR THE UNIT VECTORS}} \text{: } \text{Cosine Similarity} = \vec{q} \cdot \vec{d}
+$$
 
 #### References
 
@@ -150,3 +196,13 @@ $\tag*{}\label{1} \text{[1] Simpson's paradox, Wikipedia, https://en.wikipedia.o
 $\tag*{}\label{2} \text{[2] Normalization and pre-tokenization, HuggingFace, https://huggingface.co/learn/nlp-course/chapter6/4, accessed in Aug. 26th, 2024}$
 
 $\tag*{}\label{n} \text{[n] }$
+
+#### Appendix
+
+##### Excercise
+
+Compute *Jaccard matching score* and *tf-matching-score* for the following query and document.
+
+* q: [information on cars], d: [all you've ever wanted to know about cars]
+* q: [information on cars], d: [information on trucks, information on planes, information on trains]
+* q: [red cars and red trucks], d: [cops stop red cars more often]
