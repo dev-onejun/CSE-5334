@@ -16,7 +16,9 @@ $$
 \mathbf{\text{Acronym and Abbreviation}} \\
 \begin{array}{|c|c|}
 \hline
-\text{Information Retrieval (IR)} & \text{} \\
+\text{Information Retrieval (IR)} & \text{Term Frequency-Inversed Document Frequency (TF-IDF)} \\
+\hline
+\text{Knowledge Discovery in Database (KDD)} & \text{Machine Learning (ML)} \\
 \hline
 \text{} & \text{} \\
 \hline
@@ -97,8 +99,10 @@ In order to replace **Jaccard**, three matrix are followed;
 
 $$
 \text{Table 2. Example of Binary Incidence Matrix} \\
-\begin{array}{ccccccc}
+\begin{array}{c|cccccc}
+\hline
 & \text{Anthony and Cleopatra} & \text{Julius Caesar} & \text{The Tempest} & \text{Hamlet} & \text{Othello} & \text{Macbeth} \\
+\hline
 \text{ANTHONY} & 1 & 1 & 0 & 0 & 0 & 1 \\
 \text{BRUTUS} & 1 & 1 & 0 & 1 & 0 & 0 \\
 \text{CAESAR} & 1 & 1 & 0 & 1 & 1 & 1 \\
@@ -113,8 +117,10 @@ $$
 
 $$
 \text{Table 3. Example of Count Matrix} \\
-\begin{array}{ccccccc}
+\begin{array}{c|cccccc}
+\hline
 & \text{Anthony and Cleopatra} & \text{Julius Caesar} & \text{The Tempest} & \text{Hamlet} & \text{Othello} & \text{Macbeth} \\
+\hline
 \text{ANTHONY} & 157 & 73 & 0 & 0 & 0 & 0 \\
 \text{BRUTUS} & 4 & 157 & 0 & 2 & 0 & 0 \\
 \text{CAESAR} & 232 & 227 & 0 & 0 & 0 & 0 \\
@@ -167,8 +173,10 @@ Still, the $\text{idf}$ is ineffective for one-term queries.
 
 $$
 \text{Table 4. Example of TF-IDF Matrix} \\
-\begin{array}{ccccccc}
+\begin{array}{c|cccccc}
+\hline
 & \text{Anthony and Cleopatra} & \text{Julius Caesar} & \text{The Tempest} & \text{Hamlet} & \text{Othello} & \text{Macbeth} \\
+\hline
 \text{ANTHONY} & 5.25 & 3.18 & 0 & 0 & 0 & 0.35 \\
 \text{BRUTUS} & 1.21 & 6.10 & 0 & 1.0 & 0 & 0 \\
 \text{CAESAR} & 8.59 & 2.54 & 0 & 1.51 & 0.25 & 0 \\
@@ -179,9 +187,9 @@ $$
 \end{array}
 $$
 
-The **vector space model** is a model in which each document is represented as a vector in a $N_t$-dimensional space where $N_t$ is **Collection frequency** $\text{cf}_t$. Queries are also represented as vectors in the same space. Two perspectives are available to calculate the similarity to between the query and the documents to derive the **Ranked Retrieval** score; **1) Euclidean distance** and **2) Cosine similarity**.
+The **vector space model** is a model in which each document is represented as a vector in a $N_t$-dimensional space where $N_t$ is **Collection frequency** $\text{cf}_t$. Queries are also represented as vectors in the same space. Whatever preprocessing do in query, do in document is needed. Two perspectives are available to calculate the similarity to between the query and the documents to derive the **Ranked Retrieval** score; **1) Euclidean distance** and **2) Cosine similarity**.
 
-cf. Each term becomes axis of dimensions. If we concatenated two n-dimension vectors, it becomes (n+1)-dimensional vector. For instance, if we concatenate two squares in 2D, it becomes a rectangle in 3D. (BUT I THINK IT CAN DEPENDS ON WHERE WE CONCATENATE. IF WE CONCATENATE 3-DIMENSIONAL VECTORS IN AXIS 0, IT BECOMES 3-DIMENSIONAL VECTOR BUT IF WE CONCATENATE IN AXIS 1, IT BECOMES 6-DIMENSIONAL VECTOR)
+cf. Each term becomes axis of dimensions. If we concatenated two n-dimension vectors, it becomes (n+1)-dimensional vector. For instance, if we concatenate two squares in 2D, it becomes a rectangle in 3D. (IT'S RIGHT. BUT I THINK IT CAN DEPENDS ON WHERE WE CONCATENATE. IF WE CONCATENATE 3-DIMENSIONAL VECTORS IN AXIS 0, IT BECOMES 3-DIMENSIONAL VECTOR BUT IF WE CONCATENATE IN AXIS 1, IT BECOMES 6-DIMENSIONAL VECTOR)
 
 (Skip for the summary of Euclidean distance) However, **1) Euclidean distance** is not suitable for the **Ranked Retrieval** because the distance is not normalized. The distance is affected by the length of the document. For instance, the distance between the query and the document is larger if the document is longer. Using angle instead of distance, **2) Cosine similiarity** is not affected by the length of the document. In other words, the **cosine similarity** is implicated the step of the length normalization which makes a document vector to have a unit vector.
 
@@ -190,19 +198,75 @@ $$
 \mathbf{\text{ONLY FOR THE UNIT VECTORS}} \text{: } \text{Cosine Similarity} = \vec{q} \cdot \vec{d}
 $$
 
+Different weightings for queries and documents are often and expressed as $ddd.qqq$ format. The former $ddd$ refers to the weighting of the document and the latter $qqq$ refers to the weighting of the query. All components of $\text{tf-idf}$ is on the following table.
+
+$$
+\text{Table 5. Components of tf-idf} \\
+\begin{array}{|c|c|c|}
+\hline
+\text{Term Frequency tf} & \text{Document Frequency df} & \text{Normalization} \\
+\hline
+\begin{array}{cc}
+\text{n (natural)} & \text{tf}_{t,d} \\
+\text{l (logarithmic)} & 1 + \log(\text{tf}_{t,d}) \\
+\text{a (augmented)} & 0.5 + 0.5 \times \frac{\text{tf}_{t,d}}{\max_{t' \in d} \text{tf}_{t',d}} \\
+\text{b (boolean)} & 1 \text{, if } \text{tf}_{t,d} > 0 \text{, otherwise 0} \\
+\text{L (log average)} & {1 + \log{\text{tf}_{t,d}} \over {1 + \log{(ave_{t' \in d} \text{tf}_{t',d})}} \\}
+\end{array} &
+\begin{array}{cc}
+\text{n (no)} & 1 \\
+\text{t (idf)} & \log{N \over \text{df}_t} \\
+\text{p (prob idf)} & max(0, \log{N - \text{df}_t \over \text{df}_t}) \\
+\end{array} &
+\begin{array}{cc}
+\text{n (none)} & 1 \\
+\text{c (cosine)} & 1 \over {\sqrt{w_1^2 + w_2^2 + \cdots + w_M^2}} \\
+\text{u (pivoted unique)} & 1 \over u \\
+\text{b (byte size)} & {1 \over \text{CharLength}^a}, a < 1
+\end{array} \\
+\hline
+\end{array}
+$$
+
+For example, 'lnc.ltn' means that document is 1) logarithmic $\text{tf}$, 2) no $\text{df}$ weighting, and 3) cosine normalization, and query is 1) logarithmic $\text{tf}$, 2) logarithmic ($\text{i}$)$\text{df}$, and 3) no normalization. Sometimes, not using $\text{idf}$ in documents is not bad for the performance of IR systems.
+
+In conclusion, with these scores and **vector space model**, IR systems return the top K, like 10, documents which have the highest scores to the users.
+
+##### D. Data Mining
+
+The four V's in Big Data define what Big Data is. **1) Volume** refers to the size of the datasets. Most U.S. companies have more than 100 terabytes of data, 40 Zettbytes of data are expected to be generated in a year by 2020. In order to process the sheer volume of the data, distinct and different technologies than traditional ones is required. **2) Variety** is the types of data. Importantly, the data is classified into three types; **Structured data**, **Semi-structured data**, and **Unstructured data**. **Structured data** is the data which is organized in a tabular format, like relational database tables and CSV/TSV files. **Semi-structured data** is the data which is not organized in a tabular format but has some organizational properties, like XML, JSON, and RDF. **Unstructured data** is the data which is not organized in a tabular format and does not have any organizational properties, like text data, videos, audio, and binary data files. As of 2011, the global healthcare data was estimated to be 150 exabytes and, by 2020, 420 million wearable and wireless health monitors were expected to be use.  **3) Velocity** is the speed of the data. The data is generated faster than every before. For instance, the data from the New York Stock Exchange is generated in terabytes every day and more than 4 billion hours of video were watched on YouTube every month. **4) Veracity** is the quality of the data. The data is often dirty, incomplete, and inconsistent which makes it difficult to trust the data since data quickly becomes outdated and information shared via the Internet and social media does not necessarily have to be correct.
+
+A lot of datasets such as Amazon Public Data Sets and Data.gov are available. More information is on the lecture note page 11-13.
+
+**Data Mining** is the extraction of interesting patterns or knowledge from huge amount of data. Retreving data and addressing not interesting data such as trivial, explicit, known, and useless are not the purpose of data mining. Marketing, retail, banking, medicine, and fraud detection are the fields where data mining is utilized.
+
+**KDD** process is a classic process in data mining, discovering useful knowledge from large volumes of data. The process involves several stages as follows:
+
+$$
+\text{Data} \quad \underrightarrow{\text{Selection}} \quad \text{Target Data} \quad \underrightarrow{\text{Preprocessing}} \quad\ \text{Preprocessed Data} \quad \underrightarrow{\text{Trnasformation}} \quad \text{Transformed Data} \\
+\underrightarrow{\text{Data Mining}} \quad \text{Patterns} \underrightarrow{\text{Interpretation / Evaluation}} \quad \text{Knowledge}
+$$
+
+In each stage, the transition to other stages is allowed.
+
+Typically, pattern discovery, association and correlation, classification, clustering, outlier analysis are the tasks in **data mining** from the perspective from ML and statistics. The pattern discovery is the task to find patterns in the data. The classification is the task to classify data into different classes. The clustering is the task to group data into clusters. The association rule mining is the task to find rules that describe the relationship between items in the data. The outlier detection is the task to find data that is significantly different from the rest of the data.
+
+A lot of data mining software are summarized in the lecture note page 19.
+
+
 #### References
 
 $\tag*{}\label{1} \text{[1] Simpson's paradox, Wikipedia, https://en.wikipedia.org/wiki/Simpson%27s_paradox#Examples, accessed in Aug. 22th, 2024}$
 $\tag*{}\label{2} \text{[2] Normalization and pre-tokenization, HuggingFace, https://huggingface.co/learn/nlp-course/chapter6/4, accessed in Aug. 26th, 2024}$
 
-$\tag*{}\label{n} \text{[n] }$
-
 #### Appendix
 
 ##### Excercise
 
-Compute *Jaccard matching score* and *tf-matching-score* for the following query and document.
+1. Compute *Jaccard matching score* and *tf-matching-score* for the following query and document.
 
 * q: [information on cars], d: [all you've ever wanted to know about cars]
 * q: [information on cars], d: [information on trucks, information on planes, information on trains]
 * q: [red cars and red trucks], d: [cops stop red cars more often]
+
+2. $\text{tf-idf}$ calculation in Lecture Note `02-vsm.pdf` page 62
