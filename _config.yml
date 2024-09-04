@@ -1,0 +1,6 @@
+# support mathjax
+
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
+  input: GFM
