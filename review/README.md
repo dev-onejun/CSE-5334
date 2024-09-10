@@ -1,4 +1,6 @@
+---
 usemathjax: true
+---
 
 # A Gap Between Intuitive and Data: A Review of Data Mining
 
