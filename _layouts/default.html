@@ -4,29 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }}</title>
-    <link rel="stylesheet" type="text/css" href="/css/mjpage-html.css">
     <!--<link rel="stylesheet" href="{{ site.baseurl }}/assets/css/style.css">-->
-    <script>
-        MathJax = {
-              tex: {
-                      inlineMath: [['$', '$'], ['\\(', '\\)']],
-                      displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                      display: {
-                        linebreaks: { automatic: true, width: "80%" }
-                      },
-                      inline: {
-                        linebreaks: { automatic: true, width: "80%" }
-                      }
-                    },
-              svg: {
-                      fontCache: 'global'
-                    }
-        };
-    </script>
-    <!--<script type="text/javascript" id="MathJax-script" async
-                                     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>-->
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript" ></script>
+    { if page.usemathjax %}
+      {% include mathjax.html %}
+    {% endif %}
   </head>
   <body>
     <header>
