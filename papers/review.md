@@ -26,6 +26,8 @@ $$
 \hline
 \text{Principle Component Analysis (PCA)} & \text{Singular Value Decomposition (SVD)} \\
 \hline
+\text{Simple Matching Coefficients (SMC)} & \text{} \\
+\hline
 \text{} & \text{} \\
 \hline
 \end{array}
@@ -291,8 +293,8 @@ Sample size is a matter of concern in sampling, since if the sample size is too 
 
 *Dimensionality Reduction* is a process of reducing the number of attributes in the data. Curse of dimensionality occurs when the number of attributes is too large, causing the complexity of data analysis and visualization. According to the plot in $\text{Fig. 1}$ below, the variation of the data is decreased as the number of attributes increases. To solve the problem, PCA, SVD, and other dimensionality reduction techniques like supervised or non-linear dimensionality reduction are employed. PCA is a technique that transforms the data into a new coordinate system, where the new axes are the principal components of the data. In other terms, the eigenvectors of the covariance matrix are the new axes derived from PCA.
 
-![Curse of Dimensionality](https://i.sstatic.net/EpcHw.png)
-$\text{Fig. 1. Plot of the curse of dimensionality}$
+![Curse of Dimensionality](./assets/Fig\ 1.png)
+$\text{Fig. 1. Plot of the curse of dimensionality}$ [[3](#mjx-eqn-3)]
 
 *Feature Subset Selection* is another way to reduce dimensionality. Four techniques, brute-force, embedded, filter, and wrapper, are utilized. Brute-force is a technique that tries all possible subsets of attributes and selects the best subset. Embedded is a technique that naturally selects as the part of the data mining algorithm. Filter is a technique that selects before the data mining algorithm is applied. Wrapper is a technique that uses the data mining algorithm as a black box to find the best subset of attributes.
 
@@ -302,10 +304,91 @@ $\text{Fig. 1. Plot of the curse of dimensionality}$
 
 *Attribute Transformation* is a process to transform or to scale the data into a new form with functions like $x^k, \log(x), \exp(x), \sin(x), \|x\|, \text{etc.}$. Standardization and normalization are also employed to convert the data into a new form.
 
+##### F. Similarity and Distance Measures
+
+Similarity and dissimilarity (distance) are numerical measures of how alike or different two data objects are. Similarity is often normalized as [0, 1], while dissimilarity often has minimum value 0 and no uppber bound.
+
+When $p$ and $q$ are attribute values of two data objects, simple methods for calculating similarity and dissimilarity are as follows:
+
+$$
+\begin{array}{|c|c|c|}
+\hdashline
+\text{Attribute} & \text{Similarity} & \text{Dissimilarity} \\
+\hline
+\text{Nominal} & s = \begin{cases} 1 & \text{if } p = q \\ 0 & \text{if } p \neq q \end{cases} & d = \begin{cases} 0 & \text{if } p = q \\ 1 & \text{if } p \neq q \end{cases} \\
+\text{Ordinal} & s = \frac{|p - q|}{n - 1} & d = 1 - \frac{|p - q|}{n - 1} \\
+& (\text{where } n \text{ is the number of values, mapping the values to integers 0 to n-1}) & (s = 1-d) \\
+\hline
+\text{Interval or Ratio} & s = -d, s = \frac{1}{1+d} & d = |p - q| \\
+\hline
+\end{array}
+$$
+
+The **Euclidean distance**, a specific case of **Minkowski Distance**, is commonly a measure of **dissimilarity** between two point $p$ and $q$.
+
+$$
+\text{dist} = \left( \sum_{i=1}^{n} |p_i - q_i|^r \right)^{1/r} \begin{cases} r = 1, & \text{Manhattan distance, L1 norm} \\ r = 2, & \text{Euclidean distance, L2 norm} \\ r = \infty, & \text{Chebyshev distance, L}_\text{max}\text{ norm, L}_\infty\text{ norm} \end{cases}
+$$
+
+where $r$ is the dimension of the distance and $n$ is the number of attributes. In most cases, since the scale of each attribute is different, the standardization is necessary. The standardization is processed by subttracting the mean and dividing by the standard deviation or by scaling the values to [0, 1] by the formula $(\text{target}_{d} - \text{min}_{d_i})/(\text{max}_{d_i} - \text{min}_{d_i})$.
+
+For Chebyshev distance $L_\text{max}$ or $L_\infty$ norm, the distance converges to the maximum difference among attributes from the two vectors.
+
+These distances have the following well-known properties which a distance that satisfies these properties is called a metric; \
+$\quad\text{1.}$ $d(p, q) \geq 0$ : Positive definiteness for all $p$ and $q$. 0 only if $p = q$. \
+$\quad\text{2.}$ $d(p, q) = d(q, p)$ : Symmetry for all $p$ and $q$. \
+$\quad\text{3.}$ $d(p, q) + d(q, r) \geq d(p, r)$ : Triangle Inequality for all points $p, q, r$.
+
+**Similarity** also have common properties, \
+$\quad\text{1.}$ $s(p, q) = 1 \text{ only if } p = q$ : Identity. (1 or the maximum similarity value) \
+$\quad\text{2.}$ $s(p, q) = s(q, p)$ : Symmetry  for all $p$ and $q$
+
+Between binary vectors, the **1) SMC (Simple Matching Coefficient)** and **2) Jaccard Coefficient** are normal measures of similarity. The SMC is the proportion of matching attributes to the total number of attributes. Specifically, when
+
+$$
+\begin{array}{c|c|c}
+& \text{SMC} & \text{Jaccard Coefficient} \\
+\hline
+M_{pq} = \begin{cases} M_{01} \quad p=0, q=1 \\ M_{10} \quad p=1, q=0 \\ M_{11} \quad p=1, q=1 \\ M_{00} \quad p=0, q=0 \end{cases} & \frac{M_{11} + M_{00}}{M_{11} + M_{00} + M_{10} + M_{01}} & \frac{M_{11}}{M_{11} + M_{10} + M_{01}} \\
+(\text{The number of attributes for each case } p \text{ and } q) \\
+\hline
+\text{ex. } p = \text{1 0 0 0 0 0 0 0 0 0, }q = \text{0 0 0 0 0 0 1 0 0 1} & \frac{0 + 7}{0 + 7 + 1 + 2} = \frac{7}{10} & \frac{0}{0 + 1 + 2} = 0
+\end{array}
+$$
+
+These two coefficient differ in the precense of $M_{00}$ value, giving different results. Consequently, each coefficient is suitable for different cases. **SMC** is better when $M_{00}$ has an important meaning to translate the similarity. **Jaccard Coefficient** is more suitable when $M_{00}$ is meaningless. In other words, **SMC** is effective when the data matrix has the enough number of $M_{00}$ to be critical, while **Jaccard Coefficient** is more effective when the data matrix has $M_{00} to be ignored.
+
+Repeteadly, **3) Cosine Similarity** is also used to measure the similarity between two document vectors besides binary vectors. **4) Pearson Correlation Coefficient** measures the linear correlation between two vectors. the range of the coefficient is [-1, 1] where 1 is total positive correlation, 0 is no correlation, and -1 is total negative correlation. The formula is as follows:
+
+$$
+\text{Pearson Correlation Coefficient} = \frac{\text{covariance}_{x,y}}{\sigma_x \sigma_y}
+\frac{\sum_{i=1}^{n} (p_i - \bar{p})(q_i - \bar{q})}{\sqrt{\sum_{i=1}^{n} (p_i - \bar{p})^2} \sqrt{\sum_{i=1}^{n} (q_i - \bar{q})^2}}
+$$
+
+where $\bar{p}$ and $\bar{q}$ are the means of the vectors $p$ and $q$, $\frac{1}{n} \sum_{i=1}^{n} p_i$ and $\frac{1}{n} \sum_{i=1}^{n} q_i$.
+
+When it comes to the need of an overall similarity among different types of attributes, \
+$\quad\text{1.}$ Define an indicator variable $\sigma_k$ for the k-th attribute as follows:
+$$
+\sigma_k = \begin{cases} 0 & \text{(if the } k^\text{th} \text{ attribute is a binary asymmetric attribute AND both objects have a 0 value)} \\ & \text{or (if one of the object has a missing value for the } k^\text{th} \text{ attribute)} \\ 1 & \text{otherwise} \end{cases}
+$$
+$\quad\text{2.}$ With the similarity of the $k^\text{th}$ attribute $s_k$, the overall similarity between two objects is calculated as:
+$$
+s(p, q) = \frac{\sum_{k=1}^{n} s_k \cdot \sigma_k}{\sum_{k=1}^{n} \sigma_k}
+$$
+
+Weighting the similarity or dissimilarity of the attributes is also possible to treat the attributes differently. Using weights $w_k$ between 0 and 1 for each attribute and the sum of the weights is 1,
+
+$$
+\text{similarity} = \frac{\sum_{k=1}^{n} w_k \cdot \sigma_k \cdot s_k}{\sum_{k=1}^{n} \sigma_k} \\
+\text{distance} = (\sum_{k=1}^{n} w_k | p_k - q_k |^r)^{1/r}
+$$
+
 #### References
 
 $$\tag*{}\label{1} \text{[1] Simpson's paradox, Wikipedia, https://en.wikipedia.org/wiki/Simpson%27s_paradox#Examples, accessed in Aug. 22th, 2024}$$
 $$\tag*{}\label{2} \text{[2] Normalization and pre-tokenization, HuggingFace, https://huggingface.co/learn/nlp-course/chapter6/4, accessed in Aug. 26th, 2024}$$
+$$\tag*{}\label{3} \text{[3] Plot Figure of Curse of Dimensionality, https://i.sstatic.net/EpcHw.png, accessed in Sep. 17th 2024}$$
 
 #### Appendix
 
