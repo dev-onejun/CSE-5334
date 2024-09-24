@@ -33,9 +33,9 @@ $$
 \end{array}
 $$
 
-#### I. Introduction
+### I. Introduction
 
-#### II. Literature Review
+### II. Literature Review
 
 #### A. Simpson's Paradox
 
@@ -327,12 +327,12 @@ $$
 The **Euclidean distance**, a specific case of **Minkowski Distance**, is commonly a measure of **dissimilarity** between two point $p$ and $q$.
 
 $$
-\text{dist} = \left( \sum_{i=1}^{n} |p_i - q_i|^r \right)^{1/r} \begin{cases} r = 1, & \text{Manhattan distance, L1 norm} \\ r = 2, & \text{Euclidean distance, L2 norm} \\ r = \infty, & \text{Chebyshev distance, L}_\text{max}\text{ norm, L}_\infty\text{ norm} \end{cases}
+\text{dist} = \left( \sum_{i=1}^{n} |p_i - q_i|^r \right)^{1/r} \begin{cases} r = 1, & \text{Manhattan distance, L1 norm} \\ r = 2, & \text{Euclidean distance, L2 norm} \\ r = \infty, & \text{Supremum (Chebyshev) distance, L}_\text{max}\text{ norm, L}_\infty\text{ norm} \end{cases}
 $$
 
-where $r$ is the dimension of the distance and $n$ is the number of attributes. In most cases, since the scale of each attribute is different, the standardization is necessary. The standardization is processed by subttracting the mean and dividing by the standard deviation or by scaling the values to [0, 1] by the formula $\frac{\text{target}_{d} - \text{min}_{d_i}}{\text{max}_{d_i} - \text{min}_{d_i}}$
+where $r$ is the dimension of the distance and $n$ is the number of attributes. In most cases, since the scale of each attribute is different, the standardization is necessary. The standardization is processed by subttracting the mean and dividing by the standard deviation or by scaling the values to [0, 1] by the formula $\frac{ \text{target}_{d} - \text{min}_{d_i} }{ \text{max}_{d_i} - \text{min}_{d_i} }$
 
-For Chebyshev distance $L_\text{max}$ or $L_\infty$ norm, the distance converges to the maximum difference among attributes from the two vectors.
+For Supremum distance $L_\text{max}$ or $L_\infty$ norm, the distance converges to the maximum difference among attributes from the two vectors.
 
 These distances have the following well-known properties which a distance that satisfies these properties is called a metric; \
 $\quad\text{1.}$ $d(p, q) \geq 0$ : Positive definiteness for all $p$ and $q$. 0 only if $p = q$. \
@@ -369,10 +369,13 @@ where $\bar{p}$ and $\bar{q}$ are the means of the vectors $p$ and $q$, $\frac{1
 
 When it comes to the need of an overall similarity among different types of attributes, \
 $\quad\text{1.}$ Define an indicator variable $\sigma_k$ for the k-th attribute as follows:
+
 $$
 \sigma_k = \begin{cases} 0 & \text{(if the } k^\text{th} \text{ attribute is a binary asymmetric attribute AND both objects have a 0 value)} \\ & \text{or (if one of the object has a missing value for the } k^\text{th} \text{ attribute)} \\ 1 & \text{otherwise} \end{cases}
 $$
+
 $\quad\text{2.}$ With the similarity of the $k^\text{th}$ attribute $s_k$, the overall similarity between two objects is calculated as:
+
 $$
 s(p, q) = \frac{\sum_{k=1}^{n} s_k \cdot \sigma_k}{\sum_{k=1}^{n} \sigma_k}
 $$
@@ -384,20 +387,43 @@ $$
 \text{distance} = (\sum_{k=1}^{n} w_k | p_k - q_k |^r)^{1/r}
 $$
 
-#### References
+#### G. Decision Tree
+
+Classification is to find a model that describes and distinguishes data classes or concepts for each class attribute among other attributes. The goal is to predict unknown data using the model. Train, validate, and test data are utilized to build the model. Specifically, train and validate data are in the training process which are utilized to train the model and check if the model is trained well respectively. After the training process, test data evaluates the model performance.
+
+A few comparisions in Machine Learning (ML) follows: **1)** Classification versus Prediction and **2)** Supervised Learning versus Unsupervised Learning. Classificaiton is to predict categorical class labels which are finite and discrete. Nominal attributes are most suited for classificaiton rather than ordinal attributes. Prediction is to predict continuous values which are infinite. Ordinal attributes are most fitted for prediction.
+
+Supervised Learning refers to when the model is trained on a labeled training dataset. Supervision is the process of providing the model with the correct answer as observation and measurement. New data like test data is classified hinged on the training set. Classification and regression are the most common supervised learning types. Unsupervised Learning is called when the model is trained on an unlabeled dataset. Clustering is the common example of Unsupervised Learning.
+
+--Classification Techniques: Decision Tree based methods, Rule-based methods, Memory-based reasoning, Neural Networks, Support Vector Machines, and Naive Bayes and Bayesian Belief Networks--
+
+**Decision Tree** is a tree-like graph of decisions and their possible consequences. Specifically, splitting attributes make a decision yes or no, classifying data. Both binary and multi-way decision tree are available on one's preference. However, if data has conflicting attributes, decision tree can not solve the problem. Large search space is another limitation of decision tree, making the optimal decision tree computationally infeasible.
+
+When it comes to a single dataset, many different decision trees are possible. Despite a variety of decision trees, the problem to find the optimal decision tree is NP-complete which no efficient solution algorithm has been found. Algorithms based on greedy algorithm have been proposed to construct the decision tree, making locally optimal decisions in selecting the best attribute to split the data.
+
+Among a few algorithms like Hunt's Algorithm, CART, ID3, C4.5, SLIQ, and SPRINT, the paper reviewed Hunt's Algorithm, a one of the earliest decision tree algorithms and the foundation of other decision tree algorithms. Hunt's Algorithm is a recursive algorithm that partitions the data into subsets based on the attribute value, ensuring that each partition is as pure as possible.
+
+
+
+1. does a node have pure data regarding labels? (all labels are the same?) if true, make a node as a leaf node. If not, go to the next step.
+2. is a node empty? if true, make a node as a leaf node. If not, go to the next step.
+3. does a node have conflicting data in labels? if true, go to the next step. if not, make a node as a leaf node.
+4. split the node into child nodes based on the attribute.
+
+### References
 
 $$\tag*{}\label{1} \text{[1] Simpson's paradox, Wikipedia, https://en.wikipedia.org/wiki/Simpson%27s_paradox#Examples, accessed in Aug. 22th, 2024}$$
 $$\tag*{}\label{2} \text{[2] Normalization and pre-tokenization, HuggingFace, https://huggingface.co/learn/nlp-course/chapter6/4, accessed in Aug. 26th, 2024}$$
 $$\tag*{}\label{3} \text{[3] Plot Figure of Curse of Dimensionality, https://i.sstatic.net/EpcHw.png, accessed in Sep. 17th 2024}$$
 
-#### Appendix
+### Appendix
 
-##### Excercise
+#### Excercise
 
-1. Compute *Jaccard matching score* and *tf-matching-score* for the following query and document.
+$\text{1.}$ Compute *Jaccard matching score* and *tf-matching-score* for the following query and document.
 
 * q: [information on cars], d: [all you've ever wanted to know about cars]
 * q: [information on cars], d: [information on trucks, information on planes, information on trains]
 * q: [red cars and red trucks], d: [cops stop red cars more often]
 
-2. $\text{tf-idf}$ calculation in Lecture Note `02-vsm.pdf` page 62
+$\text{2.}$ $\text{tf-idf}$ calculation in Lecture Note `02-vsm.pdf` page 62

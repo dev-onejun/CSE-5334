@@ -8,7 +8,7 @@ $$
 \end{array}
 $$
 
-classification \in prediction
+classification $\in$ prediction
 
 The best split in a decision tree is that minimizes the impurity of the child nodes. (in page 30, car type makes only 2 false in the child nodes)
 
