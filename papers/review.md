@@ -399,22 +399,111 @@ Supervised Learning refers to when the model is trained on a labeled training da
 
 **Decision Tree** is a tree-like graph of decisions and their possible consequences. Specifically, splitting attributes make a decision yes or no, classifying data. Both binary and multi-way decision tree are available on one's preference. However, if data has conflicting attributes, decision tree can not solve the problem. Large search space is another limitation of decision tree, making the optimal decision tree computationally infeasible.
 
-When it comes to a single dataset, many different decision trees are possible. Despite a variety of decision trees, the problem to find the optimal decision tree is NP-complete which no efficient solution algorithm has been found. Algorithms based on greedy algorithm have been proposed to construct the decision tree, making locally optimal decisions in selecting the best attribute to split the data. Among a few algorithms like Hunt's Algorithm, CART, ID3, C4.5, SLIQ, and SPRINT, the paper reviewed Hunt's Algorithm, a one of the earliest decision tree algorithms and the foundation of other decision tree algorithms.
+When it comes to a single dataset, many different decision trees are possible. Despite a variety of decision trees, the problem to find the optimal decision tree is NP-complete which no efficient solution algorithm has been found. Algorithms based on greedy algorithm have been proposed to construct the decision tree, making locally optimal decisions in selecting the best attribute to split the data.
 
-**Hunt's Algorithm** is a recursive algorithm that partitions the data into subsets based on the attribute value, ensuring that each partition is as pure as possible.
+Among a few algorithms like Hunt's Algorithm, CART, ID3, C4.5, SLIQ, and SPRINT, the paper reviewed Hunt's Algorithm, a one of the earliest decision tree algorithms and the foundation of other decision tree algorithms.
 
+**Hunt's Algorithm** is a recursive algorithm that partitions the data into subsets based on the attribute value, ensuring that each partition is as pure as possible. The subset is considered pure if all the data in the subset belongs to the same class or no further meaningful partition can be made. The algorithm is as follows:
 
+``` plaintext
+Start from a tree with a single root node containing all the training data.
 
-1. does a node have pure data regarding labels? (all labels are the same?) if true, make a node as a leaf node. If not, go to the next step.
-2. is a node empty? if true, make a node as a leaf node. If not, go to the next step.
-3. does a node have conflicting data in labels? if true, go to the next step. if not, make a node as a leaf node.
-4. split the node into child nodes based on the attribute.
+Recursive:
+    1. Check if the node is homogeneous (pure).
+        - If true, make the node a leaf node and label it with the class. END the branch.
+        - If not, continue to the next step.
+    2. Check if the node is empty.
+        - If true, make the node a leaf node. END the branch.
+        - If not, continue to the next step.
+    3. Check whether the node has conflicting data, a same label with different values.
+        - If true, mark the node as a leaf node. END the branch.
+        - If not, continue to the next step.
+    4. Split the node into child nodes based on the attribute.
+        - During the split, the algorithm calculates the impurity of the child nodes using the 1) Gini index, 2) entropy, or 3) misclassification error.
+        - After splitting, the Gain is recalculated to renew the tree state.
+
+Terminate:
+    1. If all nodes become leaf nodes during the recursive process.
+    2. If the split does not show certain improvement set beforehand threshold, regarding the impurity
+        - When it comes to the large number of data, the accuracy would not be improved significantly even after the split.
+        - For example, if 100,000,000 data were input, in a certain point such as a 1,000 impurity node, the split would not impact to the accuracy of the whole tree even if the half of the data were wrong.
+        - This also leads the tree to be overfitted.
+```
+
+Regarding the split, two questions are raised. **1)** How to split with different types of attributes? **2)** How to determine the best split?
+
+The first question is answered by the type of attributes. Nominal and Ordinal attributes are treated as categorical attributes. For example, if the attribute is color, the node is split into red, blue, and green or if the attribute is size, the node is split into small, medium, and large. In this case, if categories are grouped into two, this is called 2-way split. If categories are grouped into three or more, this is called multi-way split. Interval and Ratio attributes are treated as numeric attributes. For example, if the attribute is age, the node is split into age < 20, 20 <= age < 40, 40 <= age < 60, and age >= 60. Aslike the categorical attributes, if the numeric attributes are grouped into two, this is called binary split. If the numeric attributes are grouped into three or more, this is called multi-split.
+
+To determine whether 2-way or multi-way split is needed, the algorithm calculates **Gain** with the following metrics for each possible children node. Especially for the continuous attributes, the algorithm converts the continuous values into discrete values the threshold usually the mean or median because it is inefficient that the algorithm calculates the metrics for all possible threshold values. (In the class, only 2-way split will be used.)
+
+The second question is dealt with the metrics to measure the impurity of the child nodes. Three evaluation metrics are used to measure the impurity of the child nodes. **1) Misclassification error** is the simplest metric to calculate the impurity of the splitted tree. The formula is:
+
+$$
+\text{Misclassification Error} = 1 - \max(p_i)
+$$
+
+For example, in binary split, if the node is splitted into 3:7, the misclassification error is $\frac{3}{10}$ and if the node is splitted into 5:5, the misclassification error is $\frac{5}{10}$. In multi-split, if the node is splitted into 3:3:3, the misclassification error is $\frac{6}{9}$ as well as if the node is splitted into 2:3:5, the misclassification error is $\frac{5}{10}$.
+
+However, the metric has a limitation that it tends to prefer splits that result in a large number of partitions, which the partitions are small, causing the risk of overfitting and the complex model.
+
+**2) Gini index**, also known as Gini impurity, is a measure to quantify the impurity or diversity of a dataset. The formula for calculating the Gini index is:
+
+$$
+\text{Gini} = 1 - \sum_{i=1}^{c} p_i^2 \
+\left\{
+\begin{aligned}
+& c = \text{the number of classes} \\
+& p_i = \text{the probability of selecting an item of class } i \text{ in the node}
+\end{aligned}
+\right.
+$$
+
+Two properties, regarding min-max and the ratio of the classes, are notable. **1)** The loweset value of Gini index is 0, when the node is pure. The highest value of Gini index is 0.5 for the number of classes is 2 and 0.67 for 3 classes when the node is equally distributed. In general, when the number of classes is $n_c$, $Gini = \left\{ \begin{aligned} & \text{minimum} = 0 \\ & \text{maximum} = 1 - \frac{1}{n_c} \end{aligned} \right.$ **2)** If the ratio of the classes are same between different nodes, the Gini value is same regardless of the number of datas. These properties lead the intuition to estimate the value of the Gini index before calculating it. For example, if a node is close to a 1:1 ratio of two classes, the Gini index is close to 0.5.
+
+The Gain of the Gini index is calculated by subtracting the weighted average of the child nodes' impurity from the parent node's impurity. The formula for calculating the Gain is:
+
+$$
+\text{Gain} = \text{Gini(parent)} - \sum_{\text{child} \in \text{children}} \frac{\text{the number of data in the child}}{\text{the number of data in the parent}} \times Gini(child)
+$$
+
+Although the Gini index improves the limitation of the misclassification error, it still shows the same limitation.
+
+**3) Entropy** is the most useful metric to measure the impurity. The formula for calculating the entropy is:
+$$
+\text{Entropy(t)} = - \sum_{j} p_{(j \mid t)} \log_2 p_{(j \mid t)}
+$$
+
+The minus sign is added to make the entropy value positive since the value of the log is always negative. The entropy value is 1 when the class ratio is equal and 0 when the class ratio is 0:N. The entropy value is the same regardless of the number of datas if the class ratio is the same. The maximum value of the entropy is $\log_2 N_c$, where $N_c$ is the number of classes, and the minimum value of the entropy is 0.
+
+Gain Ratio, which determines the best split, is defined by Information Gain and Split Info. The definition of each is:
+
+$$
+\begin{aligned}
+& \text{Information Gain} \\
+\hline
+& \text{Gain}_\text{split} = \text{Entropy(parent)} - \sum_{\text{child} \in \text{children}} \frac{\text{the number of data in the child}}{\text{the number of data in the parent}} \times \text{Entropy(child}) \\
+& \text{Split Info} \\
+\hline
+& \text{Split Info} = - \sum_{\text{child} \in \text{children}} \frac{\text{the number of data in the child}}{\text{the number of data in the parent}} \times \log_2 \frac{\text{the number of data in the child}}{\text{the number of data in the parent}} \\
+& \text{Gain Ratio} \\
+\hline
+& \text{Gain Ratio} = \frac{\text{Gain}_\text{split}}{\text{Split Info}}
+\end{aligned}
+$$
+
+In summary, Entropy mostly handles the limitation of the Gini index and the misclassification error. The following figure shows the comparison of the three metrics for a 2-class problem.
+
+![Comparison of GINI, Entropy, and Missclassification Error](https://www.researchgate.net/publication/339471092/figure/fig1/AS:862307349446657@1582601501720/Relation-among-Entropy-Gini-Index-and-Misclassification-error.ppm) \
+$\text{Fig. 2. Comparison of GINI, Entropy, and Missclassification Error}$ [[4](#mjx-eqn-4)]
+
+In conclusion, the decision tree algorithm shows fast, good accuracy, efficient computation, and easy interpretation, especially in simple and small dataset, than other classification algorithms.
 
 ### References
 
 $$\tag*{}\label{1} \text{[1] Simpson's paradox, Wikipedia, https://en.wikipedia.org/wiki/Simpson%27s_paradox#Examples, accessed in Aug. 22th, 2024}$$
 $$\tag*{}\label{2} \text{[2] Normalization and pre-tokenization, HuggingFace, https://huggingface.co/learn/nlp-course/chapter6/4, accessed in Aug. 26th, 2024}$$
 $$\tag*{}\label{3} \text{[3] Plot Figure of Curse of Dimensionality, https://i.sstatic.net/EpcHw.png, accessed in Sep. 17th 2024}$$
+$$\tag*{}\label{4} \text{[4] Ripon Patgiri et al., "Empirical Study on Airline Delay Analysis and Prediction", 2020, http://dx.doi.org/10.48550/arXiv.2002.10254}$$
 
 ### Appendix
 
