@@ -4,7 +4,7 @@ name: Programming Assignment 1 Pytest
 on:
   push:
     branches:
-      - P1 # Run tests on pushes to the main branch
+      - P1 # Run tests on pushes to the P1 branch
   #pull_request:
     #branches:
       #- main  # Run tests on pull requests targeting the main branch
@@ -31,7 +31,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      if [ -f requirements-test.txt ]: then pip install -r requirements-test.txt; fi
+        if [ -f requirements-test.txt ]: then pip install -r requirements-test.txt; fi
 
     - name: Run tests
       run: |
