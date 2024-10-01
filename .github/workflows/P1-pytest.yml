@@ -2,9 +2,12 @@
 name: Programming Assignment 1 Pytest
 
 on:
-  pull_request:
+  push:
     branches:
-      - main  # Run tests on pull requests targeting the main branch
+      - P1 # Run tests on pushes to the main branch
+  #pull_request:
+    #branches:
+      #- main  # Run tests on pull requests targeting the main branch
 
 jobs:
   test:
@@ -12,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10"]
 
     steps:
     - name: Checkout code
@@ -33,3 +36,28 @@ jobs:
     - name: Run tests
       run: |
         pytest
+
+  submit-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install nltk
+
+    - name: Run tests
+      run: |
+        python programming_assignment_1/p1.py

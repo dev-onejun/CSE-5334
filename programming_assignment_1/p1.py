@@ -14,6 +14,7 @@ Fall 2024, Computer Science and Engineering, University of Texas at Arlington
 
 import os
 from math import log
+import math
 
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
@@ -23,8 +24,8 @@ CORPUS_ROOT = "./US_Inaugural_Addresses"
 N = 40
 
 
-def read_files(CORPUS_ROOT: str) -> list[str]:
-    docs = []
+def read_files(CORPUS_ROOT: str) -> dict[str, list[str]]:
+    docs = {}
 
     for filename in os.listdir(CORPUS_ROOT):
         if (
@@ -40,56 +41,70 @@ def read_files(CORPUS_ROOT: str) -> list[str]:
             doc = file.read()
             file.close()
             doc = doc.lower()
-            docs.append(doc)
+            docs.update({filename: doc})
 
     N = len(docs)
 
     return docs
 
 
-def tokenize(docs: list[str]) -> (list[list[str]], list[str]):
+def tokenize(docs: dict[str, list[str]]) -> (dict[str, list[str]], list[str]):
+    """
+    tokenize() -> (tokenized_docs, tokens)
+    * tokenized_docs: all the tokens in each document
+    * tokens: all the tokens in the collection
+    """
     tokens = set()
-    tokenized_docs = []
+    tokenized_docs = {}
 
     tokenizer = RegexpTokenizer(r"[a-zA-Z]+")
-    for doc in docs:
+    for filename, doc in docs.items():
         tokens_per_doc = tokenizer.tokenize(doc)
 
         for token in tokens_per_doc:
             tokens.add(token)
-        tokenized_docs.append(tokens_per_doc)
+        tokenized_docs.update({filename: tokens_per_doc})
 
     return tokenized_docs, list(tokens)
 
 
-def preprocess(tokenized_docs: list[list[str]], tokens: list[str]) -> list[str]:
+def preprocess(
+    tokenized_docs: dict[str, list[str]], tokens: list[str]
+) -> (dict[str, list[str]], list[str]):
     stemmer = PorterStemmer()
     STOPWORDS = stopwords.words("english")
+
+    preprocessed_docs = {}
+    for filename, doc in tokenized_docs.items():
+        preprocessed_docs[filename] = [
+            stemmer.stem(token) for token in doc if token not in STOPWORDS
+        ]
 
     preprocessed_tokens = [
         stemmer.stem(token) for token in tokens if token not in STOPWORDS
     ]
 
-    return preprocessed_tokens
-
-
-docs = read_files(CORPUS_ROOT)
-tokenized_docs, tokens_set = tokenize(docs)
-preprocessed_docs, corpus = preprocess(tokenized_docs, tokens_set)
+    return preprocessed_docs, preprocessed_tokens
 
 
 def getidf(token) -> float:
+    stemmer = PorterStemmer()
+    token = stemmer.stem(token)
+
     df_t = 0
-    for doc in tokenized_docs:
+    for doc in preprocessed_docs.values():
         if token in doc:
             df_t += 1
 
-    return log(N / df_t, 10)
+    try:
+        return log(N / df_t, 10)
+    except ZeroDivisionError:
+        return -1
 
 
-def compute_TF_IDFs() -> list[dict[str, float]]:
-    TF_IDFs = []
-    for doc in tokenized_docs:
+def compute_TF_IDFs() -> dict[[str, dict[str, float]]]:
+    TF_IDFs = {}
+    for filename, doc in preprocessed_docs.items():
         TF_IDF = {}
         for token in doc:
             if token in TF_IDF:
@@ -98,21 +113,73 @@ def compute_TF_IDFs() -> list[dict[str, float]]:
                 TF_IDF[token] = 1
 
         for token in TF_IDF:
-            TF_IDF[token] = TF_IDF[token] / len(doc) * getidf(token)
+            TF_IDF[token] = (1 + log(TF_IDF[token], 10)) * getidf(token)
 
-        TF_IDFs.append(TF_IDF)
+        try:
+            norm = math.sqrt(sum(value**2 for value in TF_IDF.values()))
+            for token in TF_IDF:
+                TF_IDF[token] /= norm
+        except ZeroDivisionError:
+            print(
+                "ZeroDivisionError occurred while normalizing TF-IDF vectors. Check the data."
+            )
+            pass
+
+        TF_IDFs.update({filename: TF_IDF})
 
     return TF_IDFs
 
 
-# def getweight(filename, token) -> :
-# Return the normalized TF-IDF weight of a token in the document named 'filename'.
-# If the token does not exist in the document, return 0.
-# Note that steming the parameter 'token' is necessary before calculating the score.
+def getweight(filename, token) -> float:
+    stemmer = PorterStemmer()
+    token = stemmer.stem(token)
+
+    try:
+        return TF_IDFs[filename][token]
+    except KeyError:
+        return 0
+
+
+def get_query_vector(qstring) -> dict[str, float]:
+    idf_for_query = 1  # ltc.lnc
+
+    qstring = qstring.lower()
+    qstring = {"query": qstring}
+    tokenized_query, _ = tokenize(qstring)
+    preprocessed_query, _ = preprocess(tokenized_query, _)
+
+    query_vector = {}
+    for token in preprocessed_query["query"]:
+        if token in query_vector:
+            query_vector[token] += 1
+        else:
+            query_vector[token] = 1
+
+    for token in query_vector:
+        query_vector[token] = (1 + log(query_vector[token], 10)) * idf_for_query
+
+    try:
+        norm = math.sqrt(sum(value**2 for value in query_vector.values()))
+        for token in query_vector:
+            query_vector[token] /= norm
+    except ZeroDivisionError:
+        print(
+            "ZeroDivisionError occurred while normalizing query vector. Check the data."
+        )
+        pass
+
+    return query_vector
 
 
 def query(qstring):
-    pass
+    query_vector = get_query_vector(qstring)
+
+
+docs = read_files(CORPUS_ROOT)
+tokenized_docs, tokens_set = tokenize(docs)
+preprocessed_docs, corpus = preprocess(tokenized_docs, tokens_set)
+
+TF_IDFs = compute_TF_IDFs()
 
 
 if __name__ == "__main__":
@@ -121,7 +188,17 @@ if __name__ == "__main__":
     print("%.12f" % getidf("states"))
     print("%.12f" % getidf("honor"))
     print("%.12f" % getidf("great"))
-
-    # getidf(token)
-    # getweight(token)
-    # query(query_strings)
+    print("--------------")
+    print("%.12f" % getweight("19_lincoln_1861.txt", "constitution"))
+    print("%.12f" % getweight("23_hayes_1877.txt", "public"))
+    print("%.12f" % getweight("25_cleveland_1885.txt", "citizen"))
+    print("%.12f" % getweight("09_monroe_1821.txt", "revenue"))
+    print("%.12f" % getweight("37_roosevelt_franklin_1933.txt", "leadership"))
+    print("--------------")
+    """
+    print("(%s, %.12f)" % query("states laws"))
+    print("(%s, %.12f)" % query("war offenses"))
+    print("(%s, %.12f)" % query("british war"))
+    print("(%s, %.12f)" % query("texas government"))
+    print("(%s, %.12f)" % query("world civilization"))
+    """
