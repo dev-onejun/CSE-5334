@@ -21,10 +21,9 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 
 CORPUS_ROOT = "./US_Inaugural_Addresses"
-N = 40
 
 
-def read_files(CORPUS_ROOT: str) -> dict[str, list[str]]:
+def read_files(CORPUS_ROOT: str) -> dict[str, str]:
     docs = {}
 
     for filename in os.listdir(CORPUS_ROOT):
@@ -43,12 +42,10 @@ def read_files(CORPUS_ROOT: str) -> dict[str, list[str]]:
             doc = doc.lower()
             docs.update({filename: doc})
 
-    N = len(docs)
-
     return docs
 
 
-def tokenize(docs: dict[str, list[str]]) -> (dict[str, list[str]], list[str]):
+def tokenize(docs: dict[str, str]) -> (dict[str, list[str]], list[str]):
     """
     tokenize() -> (tokenized_docs, tokens)
     * tokenized_docs: all the tokens in each document
@@ -71,6 +68,13 @@ def tokenize(docs: dict[str, list[str]]) -> (dict[str, list[str]], list[str]):
 def preprocess(
     tokenized_docs: dict[str, list[str]], tokens: list[str]
 ) -> (dict[str, list[str]], list[str]):
+    """
+    preprocess() -> (preprocessed_docs, corpus)
+    * preprocessed_docs: all the preprocessed tokens in each document
+        - dict{filename: list of preprocessed tokens}
+    * corpus: all the preprocessed tokens in the collection
+        - list[preprocessed tokens]
+    """
     stemmer = PorterStemmer()
     STOPWORDS = stopwords.words("english")
 
@@ -87,23 +91,33 @@ def preprocess(
     return preprocessed_docs, preprocessed_tokens
 
 
-def getidf(token) -> float:
-    stemmer = PorterStemmer()
-    token = stemmer.stem(token)
-
+def compute_idf(N: int, preprocessed_docs: dict[str, list[str]], token: str) -> float:
     df_t = 0
     for doc in preprocessed_docs.values():
         if token in doc:
             df_t += 1
+            continue
 
     try:
         return log(N / df_t, 10)
     except ZeroDivisionError:
-        return -1
+        return -1.0
 
 
-def compute_TF_IDFs() -> dict[[str, dict[str, float]]]:
-    TF_IDFs = {}
+def compute_TF_IDFs(
+    preprocessed_docs: dict[str, list[str]],
+    corpus: list[str],
+) -> (dict[[str, dict[str, float]]], dict[str, float]):
+    """
+    compute_TF_IDFs() -> (TF_IDFs, IDF_vectors)
+    * TF_IDFs: TF-IDF vectors for each document
+        - dict{filename: dict{token: TF-IDF}}
+    * IDF_vectors: IDF vectors for each token
+        - dict{token: IDF}
+    """
+    N = len(preprocessed_docs)
+
+    TF_IDFs, IDF_vectors = {}, {}
     for filename, doc in preprocessed_docs.items():
         TF_IDF = {}
         for token in doc:
@@ -113,7 +127,10 @@ def compute_TF_IDFs() -> dict[[str, dict[str, float]]]:
                 TF_IDF[token] = 1
 
         for token in TF_IDF:
-            TF_IDF[token] = (1 + log(TF_IDF[token], 10)) * getidf(token)
+            idf = compute_idf(N, preprocessed_docs, token)
+
+            TF_IDF[token] = (1 + log(TF_IDF[token], 10)) * idf
+            IDF_vectors[token] = idf
 
         try:
             norm = math.sqrt(sum(value**2 for value in TF_IDF.values()))
@@ -125,9 +142,17 @@ def compute_TF_IDFs() -> dict[[str, dict[str, float]]]:
             )
             pass
 
-        TF_IDFs.update({filename: TF_IDF})
+        TF_IDFs[filename] = TF_IDF
+        # TF_IDFs.update({filename: TF_IDF})
 
-    return TF_IDFs
+    return TF_IDFs, IDF_vectors
+
+
+def getidf(token) -> float:
+    stemmer = PorterStemmer()
+    token = stemmer.stem(token)
+
+    return IDF_vectors[token]
 
 
 def getweight(filename, token) -> float:
@@ -135,7 +160,7 @@ def getweight(filename, token) -> float:
     token = stemmer.stem(token)
 
     try:
-        return TF_IDFs[filename][token]
+        return TF_IDF_vectors[filename][token]
     except KeyError:
         return 0
 
@@ -179,7 +204,7 @@ docs = read_files(CORPUS_ROOT)
 tokenized_docs, tokens_set = tokenize(docs)
 preprocessed_docs, corpus = preprocess(tokenized_docs, tokens_set)
 
-TF_IDFs = compute_TF_IDFs()
+TF_IDF_vectors, IDF_vectors = compute_TF_IDFs(preprocessed_docs, corpus)
 
 
 if __name__ == "__main__":

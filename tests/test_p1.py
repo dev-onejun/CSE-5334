@@ -1,17 +1,15 @@
 import pytest
 import platform
-from nltk.tokenize import RegexpTokenizer
-from sklearn.feature_extraction.text import TfidfVectorizer
+
+import nltk
+from nltk.corpus import stopwords
 
 try:
-    from programming_assignment_1 import *
+    stopwords.words("english")
 except LookupError:
-    print("LookupError: Resource 'corpora/stopwords' not found.")
-    if platform.node() == "runner":
-        print(
-            "The test function is passed because it runs on the remote machine named 'runner'"
-        )
-        pass
+    nltk.download("stopwords")
+
+from programming_assignment_1 import *
 
 
 def test_readFiles():
@@ -52,55 +50,52 @@ def test_preprocess():
             pass
 
 
-def test_getidf():
-    idf = getidf("democracy")
-    assert type(idf) == float
+test_docs = {
+    "doc1": "cse students",
+    "doc2": "cse students uta cse",
+}
+test_tokenized_docs, test_tokens_set = tokenize(test_docs)
+test_preprocessed_docs, test_corpus = preprocess(test_tokenized_docs, test_tokens_set)
+
+
+def test_compute_idf():
+    N = len(test_preprocessed_docs)
+
+    assert compute_idf(N, test_preprocessed_docs, "cse") == 0
+    assert compute_idf(N, test_preprocessed_docs, "students") == 0
+    assert compute_idf(N, test_preprocessed_docs, "uta") == log(2, 10)
 
 
 def test_compute_TF_IDFs():
-    TF_IDFs = compute_TF_IDFs()
-    assert type(TF_IDFs) == dict
-    assert len(TF_IDFs) == 40
-    for TF_IDF in TF_IDFs.values():
-        norm = math.sqrt(sum(value**2 for value in TF_IDF.values()))
-        assert pytest.approx(norm, 0.0001) == 1.0
-
-    """
-    def tokenizer(text):
-        tokenizer = RegexpTokenizer(r"[a-zA-Z]+")
-        return tokenizer.tokenize(text)
-
-    vectorizer = TfidfVectorizer(
-        smooth_idf=False,
-        tokenizer=tokenizer,
-        stop_words="english",
-        min_df=-1,
+    test_TF_IDFs, test_IDF_vectors = compute_TF_IDFs(
+        test_preprocessed_docs, test_corpus
     )
-    temp_docs = [" ".join(doc) for doc in preprocessed_docs]
-    tfidf_array = vectorizer.fit_transform(temp_docs).toarray()
-    feature_names = vectorizer.get_feature_names_out()
+    print(test_TF_IDFs)
 
-    library_TF_IDFs = []
-    for tfidf_per_doc in tfidf_array:
-        library_TF_IDFs.append(
-            {token: tfidf_per_doc[i] for i, token in enumerate(feature_names)}
-        )
+    assert test_TF_IDFs["doc1"]["cse"] == 0.0
+    assert test_TF_IDFs["doc1"]["student"] == 0.0
+    assert test_TF_IDFs["doc2"]["cse"] == 0.0
+    assert test_TF_IDFs["doc2"]["student"] == 0.0
+    assert (
+        test_TF_IDFs["doc2"]["uta"]
+        == ((1 + log(1, 10)) * test_IDF_vectors["uta"]) / test_IDF_vectors["uta"]
+    )
 
-    def compare_tf_idf_dictionary(TF_IDFs, library_TF_IDFs) -> bool:
-        for doc1, doc2 in zip(TF_IDFs, library_TF_IDFs):
-            for key in doc1.keys():
-                if doc1[key] != doc2[key]:  # ignore 0 values
-                    print(f"key: {key}, doc1: {doc1[key]}, doc2: {doc2[key]}")
-                    return False
 
-        return True
-
-    assert compare_tf_idf_dictionary(TF_IDFs, library_TF_IDFs) == True
-    """
+def test_getidf():
+    print("%.12f" % getidf("democracy"))
+    print("%.12f" % getidf("foreign"))
+    print("%.12f" % getidf("states"))
+    print("%.12f" % getidf("honor"))
+    print("%.12f" % getidf("great"))
 
 
 def test_getweight():
-    pass
+    print("%.12f" % getweight("19_lincoln_1861.txt", "constitution"))
+    print("%.12f" % getweight("23_hayes_1877.txt", "public"))
+    print("%.12f" % getweight("25_cleveland_1885.txt", "citizen"))
+    print("%.12f" % getweight("09_monroe_1821.txt", "revenue"))
+    print("%.12f" % getweight("37_roosevelt_franklin_1933.txt", "leadership"))
 
 
 def test_query_vector():
