@@ -138,12 +138,11 @@ def compute_TF_IDFs(
                 TF_IDF[token] /= norm
         except ZeroDivisionError:
             print(
-                "ZeroDivisionError occurred while normalizing TF-IDF vectors. Check the data."
+                "ZeroDivisionError occurred while normalizing TF-IDF vectors. Check the data to determine whether it is valid or not."
             )
             pass
 
         TF_IDFs[filename] = TF_IDF
-        # TF_IDFs.update({filename: TF_IDF})
 
     return TF_IDFs, IDF_vectors
 
@@ -166,7 +165,7 @@ def getweight(filename, token) -> float:
 
 
 def get_query_vector(qstring) -> dict[str, float]:
-    idf_for_query = 1  # ltc.lnc
+    IDF_FOR_QUERY = 1  # ltc.lnc
 
     qstring = qstring.lower()
     qstring = {"query": qstring}
@@ -181,7 +180,7 @@ def get_query_vector(qstring) -> dict[str, float]:
             query_vector[token] = 1
 
     for token in query_vector:
-        query_vector[token] = (1 + log(query_vector[token], 10)) * idf_for_query
+        query_vector[token] = (1 + log(query_vector[token], 10)) * IDF_FOR_QUERY
 
     try:
         norm = math.sqrt(sum(value**2 for value in query_vector.values()))
@@ -189,11 +188,53 @@ def get_query_vector(qstring) -> dict[str, float]:
             query_vector[token] /= norm
     except ZeroDivisionError:
         print(
-            "ZeroDivisionError occurred while normalizing query vector. Check the data."
+            "ZeroDivisionError occurred while normalizing query vector. Check the data to determine whether it is valid or not."
         )
         pass
 
     return query_vector
+
+
+def compute_cosine_similarity(
+    query_vector: dict[str, float], TF_IDF_vector: dict[str, float]
+) -> float:
+    cosine_similarity = 0.0
+    dot_product = 0.0
+    for token in query_vector:
+        if token in TF_IDF_vector:
+            dot_product += query_vector[token] * TF_IDF_vector[token]
+
+        cosine_similarity = dot_product
+
+    return cosine_similarity
+
+
+def find_similar_document(
+    query_vector: dict[str, float], TF_IDF_vectors: dict[str, dict[str, float]]
+) -> None:
+    """
+    find_similar_documents() -> None
+    * postings_list: sorted list of documents filename for a token
+    """
+    target_documents, postings_list_per_token = set(), {}
+    for query_token in query_vector:
+        postings_list: list[str] = create_postings_list(query_token)
+        top10_postings_list = postings_list[:10]
+
+        postings_list_per_token.update({query_token: top10_postings_list})
+        for doc in top10_postings_list:
+            target_documents.add(doc)
+
+    cosine_similarities = {}
+    for doc in target_documents:
+        cosine_similarities[doc] = compute_cosine_similarity(
+            query_vector, TF_IDF_vectors[doc]
+        )
+
+    sorted_cosine_similarities = sorted(
+        cosine_similarities.items(), key=lambda x: x[1], reverse=True
+    )
+    print(sorted_cosine_similarities)  # test
 
 
 def query(qstring):

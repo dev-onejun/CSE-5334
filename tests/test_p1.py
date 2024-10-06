@@ -98,10 +98,21 @@ def test_getweight():
     print("%.12f" % getweight("37_roosevelt_franklin_1933.txt", "leadership"))
 
 
-def test_query_vector():
-    query_vector = get_query_vector("democracy")
-    norm = math.sqrt(sum(value**2 for value in query_vector.values()))
-    assert pytest.approx(norm, 0.0001) == 1.0
+def test_get_query_vector():
+    test_query = "uta uta department"
+    test_query_vector = get_query_vector(test_query)
+
+    EXPECTED_VECTOR_LENGTH = math.sqrt((1 + log(2, 10)) ** 2 + (1 + log(1, 10)) ** 2)
+    print(EXPECTED_VECTOR_LENGTH)
+    EXPECTED_VECTOR = {
+        "uta": (1 + log(2, 10)) / EXPECTED_VECTOR_LENGTH,
+        "department": (1 + log(1, 10)) / EXPECTED_VECTOR_LENGTH,
+    }
+
+    for computed_value, expected_value in zip(
+        test_query_vector.values(), EXPECTED_VECTOR.values()
+    ):
+        assert computed_value == expected_value
 
 
 def test_query():
