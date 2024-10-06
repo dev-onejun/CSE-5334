@@ -195,50 +195,109 @@ def get_query_vector(qstring) -> dict[str, float]:
     return query_vector
 
 
-def compute_cosine_similarity(
-    query_vector: dict[str, float], TF_IDF_vector: dict[str, float]
-) -> float:
-    cosine_similarity = 0.0
-    dot_product = 0.0
-    for token in query_vector:
-        if token in TF_IDF_vector:
-            dot_product += query_vector[token] * TF_IDF_vector[token]
+def create_postings_list(
+    query_tokens: list[str], TF_IDF_vectors: dict[str, dict[str, float]]
+) -> dict[str, dict[str, float]]:
+    """
+    create_postings_list() -> postings_list
+    * postings_list: Dictionary for documents' list for each token
+        - dict{token: list of dict{filename: a TF-IDF of the token}}
+    """
+    postings_list = {query_token: {} for query_token in query_tokens}
+    for filename, TF_IDF_vector in TF_IDF_vectors.items():
+        for document_token in TF_IDF_vector:
+            if document_token in query_tokens:
+                postings_list[document_token].update(
+                    {filename: TF_IDF_vector[document_token]}
+                )
 
-        cosine_similarity = dot_product
+    # Use max heap later if an optimization is needed
+    for token in postings_list:
+        postings_list[token] = sorted(
+            postings_list[token].items(), key=lambda x: x[1], reverse=True
+        )
+        postings_list[token] = postings_list[token][:10]
 
-    return cosine_similarity
+    return postings_list
+
+
+def cosine_similarity(
+    estimated_TF_IDF_vectors: dict[str, dict[str, float]],
+    query_vector: dict[str, float],
+    top10_postings_list: dict[str, list[tuple[str, float]]],
+) -> list[tuple[str, float]]:
+    """
+    cosine_similarity() -> sorted_cosine_similarities
+    * cosine_similarity: dict{filename: (cosine_similarity, whether the true value or not (fetch-more))}
+    """
+    cosine_similarities: dict[str, tuple[float, bool]] = {}
+    for filename, TF_IDF_vector in estimated_TF_IDF_vectors.items():
+        cosine_similarity = 0.0
+        for query_token in query_vector:
+            try:
+                cosine_similarity += (
+                    query_vector[query_token] * TF_IDF_vector[query_token]
+                )
+                cosine_similarities[filename] = (cosine_similarity, True)
+            except KeyError:  # fetch more
+                try:
+                    cosine_similarity += (
+                        query_vector[query_token]
+                        * top10_postings_list[query_token][-1][1]
+                    )
+                    cosine_similarities[filename] = (cosine_similarity, False)
+                except IndexError:  # No document contains the token
+                    pass
+
+    sorted_cosine_similarities = sorted(
+        cosine_similarities.items(), key=lambda x: x[1][0], reverse=True
+    )
+
+    return sorted_cosine_similarities
 
 
 def find_similar_document(
     query_vector: dict[str, float], TF_IDF_vectors: dict[str, dict[str, float]]
-) -> None:
+) -> tuple[str, tuple[float, bool]]:
     """
-    find_similar_documents() -> None
-    * postings_list: sorted list of documents filename for a token
+    find_similar_documents() -> the document info of the maximum consine similarity
+    * top10_postings_list: top 10 postings list for each token in the query
     """
-    target_documents, postings_list_per_token = set(), {}
-    for query_token in query_vector:
-        postings_list: list[str] = create_postings_list(query_token)
-        top10_postings_list = postings_list[:10]
-
-        postings_list_per_token.update({query_token: top10_postings_list})
-        for doc in top10_postings_list:
-            target_documents.add(doc)
-
-    cosine_similarities = {}
-    for doc in target_documents:
-        cosine_similarities[doc] = compute_cosine_similarity(
-            query_vector, TF_IDF_vectors[doc]
-        )
-
-    sorted_cosine_similarities = sorted(
-        cosine_similarities.items(), key=lambda x: x[1], reverse=True
+    top10_postings_list = create_postings_list(
+        query_vector.keys(),
+        TF_IDF_vectors,
     )
-    print(sorted_cosine_similarities)  # test
+
+    estimated_TF_IDF_vectors = {}
+    for query_token in top10_postings_list:
+        for filename, TF_IDF in top10_postings_list[query_token]:
+            estimated_TF_IDF_vectors.update({filename: {}})
+            estimated_TF_IDF_vectors[filename].update({query_token: TF_IDF})
+
+    cosine_similarities = cosine_similarity(
+        estimated_TF_IDF_vectors, query_vector, top10_postings_list
+    )
+
+    return cosine_similarities
 
 
-def query(qstring):
+def query(qstring) -> tuple[str, float]:
     query_vector = get_query_vector(qstring)
+
+    try:
+        similar_document = find_similar_document(query_vector, TF_IDF_vectors)[0]
+        filename = similar_document[0]
+        cos_sim, true_value = similar_document[1]
+    except IndexError:
+        filename = "None"
+        cos_sim = 0
+
+        return filename, cos_sim
+
+    if not true_value:
+        return "fetch more", 0
+    else:
+        return filename, cos_sim
 
 
 docs = read_files(CORPUS_ROOT)
@@ -261,10 +320,8 @@ if __name__ == "__main__":
     print("%.12f" % getweight("09_monroe_1821.txt", "revenue"))
     print("%.12f" % getweight("37_roosevelt_franklin_1933.txt", "leadership"))
     print("--------------")
-    """
     print("(%s, %.12f)" % query("states laws"))
     print("(%s, %.12f)" % query("war offenses"))
     print("(%s, %.12f)" % query("british war"))
     print("(%s, %.12f)" % query("texas government"))
     print("(%s, %.12f)" % query("world civilization"))
-    """

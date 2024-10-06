@@ -62,8 +62,10 @@ def test_compute_idf():
     N = len(test_preprocessed_docs)
 
     assert compute_idf(N, test_preprocessed_docs, "cse") == 0
-    assert compute_idf(N, test_preprocessed_docs, "students") == 0
+    assert compute_idf(N, test_preprocessed_docs, "student") == 0
     assert compute_idf(N, test_preprocessed_docs, "uta") == log(2, 10)
+
+    assert compute_idf(N, test_preprocessed_docs, "none") == -1
 
 
 def test_compute_TF_IDFs():
@@ -115,5 +117,62 @@ def test_get_query_vector():
         assert computed_value == expected_value
 
 
+def test_create_postings_list():
+    # 1
+    top10_postings_list = create_postings_list(
+        get_query_vector("states laws CSE").keys(),
+        TF_IDF_vectors,
+    )
+
+    for token in top10_postings_list:
+        assert len(top10_postings_list[token]) <= 10
+
+    # 2
+    top10_postings_list = create_postings_list(
+        get_query_vector("CSE").keys(),
+        TF_IDF_vectors,
+    )
+    assert len(top10_postings_list["cse"]) == 0
+
+
+def test_find_similar_document():
+    similar_document = find_similar_document(
+        get_query_vector("states laws CSE"), TF_IDF_vectors
+    )
+
+
 def test_query():
-    pass
+    test_queries = [
+        "states laws",
+        "war offenses",
+        "british war",
+        "texas government",
+        "world civilization",
+        "war states laws CSE",
+        "CSE",
+    ]
+
+    for test_query in test_queries:
+        test_vector = get_query_vector(test_query)
+        top10_postings_list = create_postings_list(
+            test_vector.keys(),
+            TF_IDF_vectors,
+        )
+        result = query(test_query)
+
+        test_vector_set = set(test_vector.keys())
+        corpus_set = set(corpus)
+        if test_vector_set & corpus_set == set():
+            assert result[0] == "None"
+        else:
+            if result[0] != ("fetch more" or "None"):  # The valid result
+                filenames = []
+                for token in top10_postings_list:
+                    for filename, _ in top10_postings_list[token]:
+                        filenames.append(filename)
+
+                if result[0] not in filenames:
+                    assert False  # The result document should be in the top 10 postings list for all tokens
+
+            else:  # fetch more
+                assert True
