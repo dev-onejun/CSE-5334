@@ -22,6 +22,13 @@ from nltk.stem.porter import PorterStemmer
 
 CORPUS_ROOT = "./US_Inaugural_Addresses"
 
+try:
+    stopwords.words("english")
+except LookupError:
+    import nltk
+
+    nltk.download("stopwords")
+
 
 def read_files(CORPUS_ROOT: str) -> dict[str, str]:
     docs = {}
