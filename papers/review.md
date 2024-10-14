@@ -26,7 +26,7 @@ $$
 \hline
 \text{Principle Component Analysis (PCA)} & \text{Singular Value Decomposition (SVD)} \\
 \hline
-\text{Simple Matching Coefficients (SMC)} & \text{} \\
+\text{Simple Matching Coefficients (SMC)} & \text{Bayesian Belief Networks (BBN)} \\
 \hline
 \text{} & \text{} \\
 \hline
@@ -497,6 +497,116 @@ In summary, Entropy mostly handles the limitation of the Gini index and the misc
 $\text{Fig. 2. Comparison of GINI, Entropy, and Missclassification Error}$ [[4](#mjx-eqn-4)]
 
 In conclusion, the decision tree algorithm shows fast, good accuracy, efficient computation, and easy interpretation, especially in simple and small dataset, than other classification algorithms.
+
+#### H. Naive Bayes Classifier
+
+**FYI:** While Hidden Markov Model was proposed to address the sequential data problem with statistical models, Naive Bayes Classifier is a probabilistic classifier that uses Bayes theorem to solve classification problems.
+
+$\quad$ A Bayesian Classifier is a probabilitic classifier that uses Bayes theorem to solve classification problems. Bayes theorem calculates the probability of a hypothesis given our prior knowledge as follows:
+
+$$
+\begin{aligned}
+\mathbf{\text{Conditional Probability}} & : P(A|B) = \frac{P(A,B)}{P(B)} \\
+\mathbf{\text{Bayes Theorem}} & : P(A|B) = \frac{P(B|A)P(A)}{P(B)} \\
+\end{aligned}
+$$
+
+$\quad$ The Naive Bayes Classifier is a type of Bayesian Classifiers that strongly assumes that the attributes are conditionally independent. Specifically when attributes $A_i \text{i} \in N$ are given, the class label $C$ is estimated as
+
+$$
+\begin{aligned}
+\text{Naive Bayes Classifier} & : P(C \mid A_1, A_2, \ldots, A_n) \\
+& \begin{cases}
+P(C \mid A_1, A_2, \ldots, A_n) = \frac{P(A_1, A_2, \ldots, A_n \mid C)P(C)}{P(A_1, A_2, \ldots, A_n)} \\
+P(A_1, A_2, \ldots, A_n \mid C) = P(A_1 \mid C)P(A_2 \mid C) \ldots P(A_n \mid C)
+\end{cases}
+\end{aligned}
+$$
+
+The classifier infers a data belongs to a class label $C$ if the probability of the data given the class label $P(C_j) \cdot \prod P(A_i \mid C_j)$ is the highest among all class labels.
+
+$\quad$ The following example explains that how Naive Bayes Classifier train data for both discrete and continuous attributes.
+
+$$
+\begin{array}{cc}
+\begin{array}{|c|c|c|c|c|}
+\hline
+\text{id} & \text{Refund} & \text{Martial Status} & \text{Texable Income} & \text{Class} \\
+\hline
+1 & \text{Yes} & \text{Single} & 125K & \text{No} \\
+2 & \text{No} & \text{Married} & 100K & \text{No} \\
+3 & \text{No} & \text{Single} & 70K & \text{No} \\
+4 & \text{Yes} & \text{Married} & 120K & \text{No} \\
+5 & \text{No} & \text{Divorced} & 95K & \text{Yes} \\
+6 & \text{No} & \text{Married} & 60K & \text{No} \\
+7 & \text{Yes} & \text{Divorced} & 220K & \text{No} \\
+8 & \text{No} & \text{Single} & 85K & \text{Yes} \\
+9 & \text{No} & \text{Married} & 75K & \text{No} \\
+10 & \text{No} & \text{Single} & 90K & \text{Yes} \\
+\hline
+\end{array}
+&
+\begin{aligned}
+& P(C_j) = \frac{\text{Number of data in class } C_j}{\text{Total number of data}} \\
+& \quad \text{e.g. } P(\text{No}) = \frac{7}{10} = 0.7, P(\text{Yes}) = \frac{3}{10} = 0.3 \\
+\\
+& \mathbf{\text{Discrete Attributes: }} P(A_i \mid C_k) = \frac{\text{Number of instance having attribute } A_i}{\text{Number of Class } C_k} \\
+& \qquad\qquad\qquad\qquad\qquad \text{e.g. } P(\text{Status=Married} \mid \text{No}) = \frac{4}{7} \\
+& \qquad\qquad\qquad\qquad\qquad\qquad P(\text{Refund=Yes} \mid \text{Yes}) = 0 \\
+\\
+& \mathbf{\text{Continuous Attributes: }} P(A_i \mid C_k) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \\
+& \qquad\qquad\qquad\qquad\qquad \text{e.g. } P(\text{Income=120} \mid \text{No}) = \frac{1}{\sqrt{2\pi (54.54)}}e^{-\frac{(120-110)^2}{2(2975)}} \\
+& \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\quad = 0.0072
+\end{aligned}
+\end{array}
+$$
+
+While discretize the range of continuous attributes, probability density estimation assumes that the attributes follows a normal distribution. The classifier classifies a new data with the computed probabilities like the following example.
+
+$$
+\begin{array}{cc}
+\begin{aligned}
+& X = (\text{Refund=No, Status=Married, Income=120K}) \\
+\\
+& P(X \mid \text{Class=No}) = P(\text{Refund=No} \mid \text{Class=No}) \\
+& \qquad\qquad\qquad\qquad \times P(\text{Status=Married} \mid \text{Class=No}) \\
+& \qquad\qquad\qquad\qquad \times P(\text{Income=120K} \mid \text{Class=No}) \\
+& \qquad\qquad\qquad \quad = \frac{4}{7} \cdot \frac{4}{7} \cdot 0.0072 = 0.0024 \\
+& P(X \mid \text{Class=Yes}) = P(\text{Refund=No} \mid \text{Class=Yes}) \\
+& \qquad\qquad\qquad\qquad \times P(\text{Status=Married} \mid \text{Class=Yes}) \\
+& \qquad\qquad\qquad\qquad \times P(\text{Income=120K} \mid \text{Class=Yes}) \\
+& \qquad\qquad\qquad \quad = 1 \cdot 0 \cdot (1.2 \times 10^{-9}) = 0 \\
+\end{aligned}
+&
+\begin{aligned}
+& \mathbf{\text{Naive Bayes Classifier: }} \\
+& \qquad P(\text{Refund=Yes} \mid \text{Class=No}) = \frac{3}{7} \\
+& \qquad P(\text{Refund=No} \mid \text{Class=No}) = \frac{4}{7} \\
+& \qquad P(\text{Refund=Yes} \mid \text{Class=Yes}) = 0 \\
+& \qquad P(\text{Refund=No} \mid \text{Class=Yes}) = 1 \\
+& \qquad P(\text{Status=Single} \mid \text{Class=No}) = \frac{2}{7} \\
+& \qquad P(\text{Status=Divorced} \mid \text{Class=No}) = \frac{1}{7} \\
+& \qquad P(\text{Status=Married} \mid \text{Class=No}) = \frac{4}{7} \\
+& \qquad P(\text{Status=Single} \mid \text{Class=Yes}) = \frac{2}{3} \\
+& \qquad P(\text{Status=Divorced} \mid \text{Class=Yes}) = \frac{1}{3} \\
+& \qquad P(\text{Status=Married} \mid \text{Class=Yes}) = 0 \\
+& \qquad \text{For taxable income:} \\
+& \qquad \qquad \text{class=No: } \mu = 110, \sigma^2 = 2975 \\
+& \qquad \qquad \text{class=Yes: } \mu = 90, \sigma^2 = 25
+\end{aligned}
+\end{array}
+$$
+
+Between the probabilities of the two class labels, class `No` has a higher probability than class `Yes`. Therefore, the Naive Bayes Classifier classifies the new data $X$ as class `No`.
+
+$\quad$ However, Naive Bayes has a limitation that an attribute with a conditional probability of 0 makes the overall probability 0. To avoid this, Laplace smoothing and m-estimated were applied to the conditional probabilities. **1)** Laplace smoothing is a technique to add a small value to the probability of each attribute. It adds 1 to the numerator and the number of classes to the demoninator **2)** m-estimate is a generalization of Laplace smoothing.
+
+$$
+\text{Original: } P(A_i \mid C) = \frac{\text{Number of instance having attribute } A_i}{\text{Number of Class } C_k} \to \begin{cases} \text{Laplace} & P(A_i \mid C) = \frac{\text{Number of instance having attribute } A_i + 1}{\text{Number of Class } C_k + N} \\ \text{m-estimate} & P(A_i \mid C) = \frac{\text{Number of instance having attribute } A_i + m \cdot P(A_i)}{\text{Number of Class } C_k + m} \end{cases} \\
+N: \text{Number of classes}, m: \text{smoothing parameter}
+$$
+
+$\quad$ In summary, Naive Bayes Classifier is robust to noise data and irrelevant attributes, and easy to handle missing values by ignoring the missing values during probability estimate calculation. Nevertheless, Independence assumption may be incorrect so that other techniques such as Bayesian Belief Networks (BBN) are proposed to address the limitation.
 
 ### References
 
