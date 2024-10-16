@@ -28,6 +28,9 @@ $$
 \hline
 \text{Simple Matching Coefficients (SMC)} & \text{Bayesian Belief Networks (BBN)} \\
 \hline
+\text{K-Nearest Neighbor (KNN)} & \text{Support Vector Machine (SVM)} \\
+\hline
+\text{Parallel Exemplar-Based Learning System (PEBLS)} & \text{} \\
 \text{} & \text{} \\
 \hline
 \end{array}
@@ -610,6 +613,61 @@ N: \text{Number of classes}, m: \text{smoothing parameter}
 $$
 
 $\quad$ In summary, Naive Bayes Classifier is robust to noise data and irrelevant attributes, and easy to handle missing values by ignoring the missing values during probability estimate calculation. Nevertheless, Independence assumption may be incorrect so that other techniques such as Bayesian Belief Networks (BBN) are proposed to address the limitation.
+
+#### I. K-Nearest Neighbor and Support Vector Machine
+
+$\quad$ **K-Nearest Neighbor (KNN)** and **Support Vector Machine (SVM)** are instance-based classifiers which memorize the training data to use it directly for predictions on new instances.
+
+$\quad$ Hinged on the computing distance between the new instance and the training data, KNN, known as a lazy algorithm, selects the $k$ nearest neighbors to the new instance and classifies the new instance based on the majority class of the $k$ neighbors. Euclidean distance is often used to calculate the distance.
+
+$$
+\text{Distance(p, q)} = \sqrt{\sum_{i=1}^{n} (p_i - q_i)^2}
+$$
+
+To avoid ties in the majority class, **1)** $k$ is chosen to be an odd number or **2)** a weight factor $w = 1 / \text{distance}^2$ is applied to the distance. When it comes to $k = 1$, a Voronoi diagram visualizes the result of the nearest neighbor search. Each Voronoi Cell represents the region where a new instance is classified as the class of the nearest neighbor.
+
+$\quad$ The concept of KNN leads the performance of the classifier to be important in choosing the value of $k$. To be specific, the classifier becomes sensitive to noise points when $k$ is too small. For example, a fact that a new data is able to be placed close to a noise point supports the problem. Additionally, the accuracy of the classifier decrease when $k$ is too large. The large $k$ obviously includes unrelated data points.
+
+$\quad$ The different scales among attributes and the limitation of Euclidean distance are also the issues to be considered. For instance, the range of height and weight are so different that the specific attribute may dominate the distance calculation. Curse of dimensionality from high dimensional data is emerged in Euclidean distance. To solve the problem, normalization of vectors to the unit vector is required.
+
+$\quad$ PEBLS (Parallel Exemplar-Based Learning System) is a KNN algorithm that specifically designed for discrete (categorical) and nominal data. The algorithm employs a unique distance metric.
+
+$$
+\text{Distance}(V_1, V_2) = \sum_{i=1} \left| \frac{n_{1i}}{n_1} - \frac{n_{2i}}{n_2} \right|
+$$
+
+where $n_1, n_2$ are the number of instances in $V_1, V_2$ for all classes respectively, and $n_{1i}, n_{2i}$ are the number of instances in $V_1, V_2$ for class $i$ respectively. Taking the $\text{Table. #}$ as an example, the distances between nominal attribute values are
+
+$$
+\begin{aligned}
+\text{Distance(Single, Married)} & = \left| \frac{2}{4} - \frac{0}{4} \right| + \left| \frac{2}{4} - \frac{4}{4} \right| = 1 \\
+\text{Distance(Single, Divorced)} & = \left| \frac{2}{4} - \frac{1}{2} \right| + \left| \frac{2}{4} - \frac{1}{2} \right| = 0 \\
+\text{Distance(Married, Divorced)} & = \left| \frac{0}{4} - \frac{1}{2} \right| + \left| \frac{4}{4} - \frac{1}{2} \right| = 1 \\
+\text{Distance(Refund=Yes, Refund=No)} & = \left| \frac{0}{3} - \frac{3}{7} \right| + \left| \frac{3}{3} - \frac{4}{7} \right| = \frac{6}{7}
+\end{aligned}
+$$
+
+Instance Weighting in PEBLS makes the each data point whether it is reliable or not. Using the historical results of predictions, the algorithm increases the distance of wrong predictions and decrease the distance of correct predictions where $W_x$ is greater than 1 for unreliable points and similar to 1 for reliable points. Therefore, the distance between two instances $X, Y$ is calculated as
+
+$$
+\mathbf{\delta(X, Y)} = W_X W_Y \sum_{i=1}^{d} \text{Distance}(X_i, Y_i)^2 \\
+\text{Where } W_X = \frac{\text{The number of times that X is used for prediction}}{\text{The number of times that X is used to predict correctly}}
+$$
+
+$\quad$ **Support Vector Machine (SVM)** is a linear classifier that finds a hyperplane to separate the data with the maximum margin among all classes. For $n$-dimensional data, the hyperplane has $n-1$ dimensions. Mathmatically, the hyperplane is defined as $w^Tx + b = 0$ where $w$ is the normal vector to the hyperplane, $x$ is the data point, and $b$ is the bias term. Data points are classified as $1$ if $w^Tx + b \ge 1$ and $-1$ if $w^Tx + b \le -1$. The margin is defined as $\frac{2}{\mid\mid w \mid\mid}$ where $\mid\mid w \mid\mid$ is the norm of the normal vector $w$.
+
+$\quad$ To find the hyperplane for $n$-dimensional data, at least $n+1$ data points are required. According to the formula, $w^Tx + b = 0$ implies that the dimension of $w$ is equal to the dimension of $x$ so that $n$ number of variables should be solved. Also, $b$ should be found, which results in entailing $n+1$ data points.
+
+$\quad$ The maximization of the margin is equivalent to the minimization of $L(w) = \frac{\mid\mid w \mid\mid^2}{2}$ subjected to the following constraints
+
+$$
+f(x_i) = \begin{cases}
+1 & \text{if } w^T X_i + b \ge 1 \\
+-1 & \text{if } w^T X_i + b \le -1
+\end{cases}
+$$
+
+This is called a constrained optimization problem.
 
 ### References
 
