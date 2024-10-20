@@ -9,12 +9,11 @@ $$
 \text{Computer Science} \\
 \text{University of Texas at Arlington} \\
 \text{Arlington, TX, United States} \\
-\text{wxp7177@mavs.uta.edu}
+\text{wxp7177@mavs.uta.edu} \\
+\text{Fall 2024}
 $$
 
 ##### *Abstract*
-
-
 
 $$
 \mathbf{\text{Acronym and Abbreviation}} \\
@@ -30,8 +29,8 @@ $$
 \hline
 \text{K-Nearest Neighbor (KNN)} & \text{Support Vector Machine (SVM)} \\
 \hline
-\text{Parallel Exemplar-Based Learning System (PEBLS)} & \text{} \\
-\text{} & \text{} \\
+\text{Parallel Exemplar-Based Learning System (PEBLS)} & \text{Artificial Neural Networks (ANN)} \\
+\text{Multi-Layer Perceptron (MLP)} & \text{} \\
 \hline
 \end{array}
 $$
@@ -654,7 +653,7 @@ $$
 \text{Where } W_X = \frac{\text{The number of times that X is used for prediction}}{\text{The number of times that X is used to predict correctly}}
 $$
 
-$\quad$ **Support Vector Machine (SVM)** is a linear classifier that finds a hyperplane to separate the data with the maximum margin among all classes. For $n$-dimensional data, the hyperplane has $n-1$ dimensions. Mathmatically, the hyperplane is defined as $w^Tx + b = 0$ where $w$ is the normal vector to the hyperplane, $x$ is the data point, and $b$ is the bias term. Data points are classified as $1$ if $w^Tx + b \ge 1$ and $-1$ if $w^Tx + b \le -1$. The margin is defined as $\frac{2}{\mid\mid w \mid\mid}$ where $\mid\mid w \mid\mid$ is the norm of the normal vector $w$.
+$\quad$ **SVM** is a linear classifier that finds a hyperplane to separate the data with the maximum margin among all classes. For $n$-dimensional data, the hyperplane has $n-1$ dimensions. Mathmatically, the hyperplane is defined as $w^Tx + b = 0$ where $w$ is the normal vector to the hyperplane, $x$ is the data point, and $b$ is the bias term. Data points are classified as $1$ if $w^Tx + b \ge 1$ and $-1$ if $w^Tx + b \le -1$. The margin is defined as $\frac{2}{\mid\mid w \mid\mid}$ where $\mid\mid w \mid\mid$ is the norm of the normal vector $w$.
 
 $\quad$ To find the hyperplane for $n$-dimensional data, at least $n+1$ data points are required. According to the formula, $w^Tx + b = 0$ implies that the dimension of $w$ is equal to the dimension of $x$ so that $n$ number of variables should be solved. Also, $b$ should be found, which results in entailing $n+1$ data points.
 
@@ -667,7 +666,67 @@ f(x_i) = \begin{cases}
 \end{cases}
 $$
 
-This is called a constrained optimization problem.
+This is called a constrained optimization problem. To solve the problem, the two constraints can be combined into a constraint $\mathbf{y_i(w^T X_i + b) \ge 1}$, where $y_i$ is the class label of $X_i$. Substituting the variables of the constrant into datapoints, support vectors, which is data points that are closest to the decision boundary, the decision boundary, which is the hyperplane that separates the two classes, can be found.
+
+$\quad$ When it comes to the non-linearly separable data (cannot solve with a line), **SVM** introduced slack variables denoted by $\xi_i$ to allow some data points to be on the wrong side of the decision boundary. The slack variables are added to objective function $L(w)$ to penalize the misclassification of data points. The objective function becomes
+
+$$
+L(w) = \frac{\mid\mid w \mid\mid^2}{2} + C \sum_{i=1}^{n} \xi_i
+$$
+
+where $C$ is a hyperparameter that enables to control the flexibility of the model. The larger the $C$, the more the model tries to minimize the slack variables, which results in a more rigid model and may lead to overfitting. The smaller the $C$, the more the model allows the slack variables, which results in a more flexible model and may lead to underfitting.
+
+The constraints are also modified by adding the slack variables to the constraints to make the constraints more flexible. The constraints become
+
+$$
+f(x_i) = \begin{cases}
+1 & \text{if } w^T X_i + b \ge 1 - \xi_i \\
+-1 & \text{if } w^T X_i + b \le -1 + \xi_i
+\end{cases}
+$$
+
+$\quad$ For the non-linear decision boundary data (can solve a line), **SVM** transforms the data into a higher-dimensional space, resulting in linearly separable data. This is called the kernel trick. For example, the data points in $(x, y)$ space can be transformed into $(x, x^2 + y^2)$ space.
+
+$\quad$ As a summarization, a **SVM** model, which is trained once, is not changed even the data is added in the middle of each class. This is a difference from other models like Decision Tree, KNN, and Naive Bayes.
+
+#### J. Artificial Neural Networks
+
+$\quad$ Artificial Neural Networks (ANN) is a complex non-linear function based on a collection of nodes and edges. The initial concept was **Perceptron**, a single-layer of nodes and edges with a step function as an activation function. The Perceptron learning algorithm is
+
+$$
+\begin{aligned}
+& \text{Init the weights to 0 or small random numbers (not 0 in practice since it makes much computation)} \\
+& \text{For each training sample } (x_i, y_i): \\
+& \qquad \text{Compute the predicted output value } \hat{y} \\
+& \qquad \text{Update the weights with} \\
+& \qquad \qquad w_j^{(k+1)} = w_j^{(k)} + \lambda \times (y_i - \hat{y}^{(k)}) \times x_{ij} \qquad \text{(} \lambda \text{: learning rate, } k \text{: iteration number)} \\
+& \qquad \text{Until the stopping condition (e.g. error threshold, number of iterations) is met}
+\end{aligned}
+$$
+
+When it comes to the error (= $y_i - \hat{y}^{(k)}$), if the error is 0, the weights are not updated. If the error is positive, the weights are increased. If the error is negative, the weights are decreased. (Example Problem in Course Materials)
+
+$\quad$ However, the **Perceptron** was not able to solve the XOR problem. Plus, the step function was not differentiable, meaning that a gradient descent algorithm, which is the crucial learning algorithm of modern ANN models, is not applicable. **Multi-layer Perceptron (MLP)**, also known as feedforward neural networks, was introduced to solve these problems. The **MLP** has multiple layers of nodes and edges with a non-linear activation function. Except for the first and last layers, which are referred to as the input and output layers, the other layers are called hidden layers. For a output of some node $i$ in layer $l$, the output is calculated as
+
+$$
+a_i^l = f(z_i^l) = f( \sum_j w_{ij}^l a_j^{l-1} + b_i^l ) \begin{cases}
+a_i^l & \text{the activation value of node } i \text{ in layer } l \\
+f & \text{the activation function} \\
+z_i^l & \text{the linear prediction of node } i \text{ in layer } l
+\end{cases}
+$$
+
+$\quad$ Sigmoid function, hyperbolic tangent function, and ReLU function are commonly used as activation functions. A linear function is avoided as an activation function because it can not represent non-linear relationships.
+
+$\quad$ To train **MLP**, a new method was proposed since the perceptron learning algorithm was not applicable without knowing that the error of hidden layers. The **backpropagation algorithm** with **Gradient Descent** was the new method. The **backpropagation algorithm** calculates the error of the output layer and propagates the error back to the hidden layers, differentiating the error with respect to each weight in each node using the chain rule.
+
+$$
+\frac{\partial L}{\partial w_{ij}^l} = \frac{\partial L}{\partial a_i^l} \times \frac{\partial a_i^l}{\partial z_i^l} \times \frac{\partial z_i^l}{\partial w_{ij}^l}
+$$
+
+The algorithm updates the weights until the loss function converges to the minimum.
+
+$\quad$ The design of ANN is a issue. Many types of neural networks like AlexNet, VGGNet, GoogLeNet, and ResNet have been proposed with convolutional layers using different hyperparameters in the number of nodes, the number of layers, the learning rate. What optimizers and activation functions to use are also needed a consideration. Besides, epochs, batch size, and early stopping, etc. are also hyperparameters that need to be tuned. (FYI: Transformers, a attention-based model, has a belief that the bigger the model, the better the performance.)
 
 ### References
 
