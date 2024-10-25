@@ -19,7 +19,7 @@ Overfitting
         - Pre-Pruning (Early Stop)
             ex. Stop before the tree becomes a fully-glown
             ex. ..
-            ex. kai^2 test?
+            ex. kai^2 test? **Chi-Square Test**
         - Post-Pruning
             in example. if child node has low error, do not prune (post-pruning in decision tree)
 

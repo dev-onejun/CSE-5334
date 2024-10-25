@@ -471,6 +471,7 @@ $$
 Although the Gini index improves the limitation of the misclassification error, it still shows the same limitation.
 
 **3) Entropy** is the most useful metric to measure the impurity. The formula for calculating the entropy is:
+
 $$
 \text{Entropy(t)} = - \sum_{j} p_{(j \mid t)} \log_2 p_{(j \mid t)}
 $$
@@ -727,6 +728,114 @@ $$
 The algorithm updates the weights until the loss function converges to the minimum.
 
 $\quad$ The design of ANN is a issue. Many types of neural networks like AlexNet, VGGNet, GoogLeNet, and ResNet have been proposed with convolutional layers using different hyperparameters in the number of nodes, the number of layers, the learning rate. What optimizers and activation functions to use are also needed a consideration. Besides, epochs, batch size, and early stopping, etc. are also hyperparameters that need to be tuned. (FYI: Transformers, a attention-based model, has a belief that the bigger the model, the better the performance.)
+
+#### K. Evaluation in Classification
+
+$\quad$ Evaluation is a barometer of models whether they are trained well. Depending on the goal of models, it is important that suitable metrics are adopted to evaluate the models they achieve the goal of certain problems. Both statistically defined metrics, also referred to offline metrics, and data-driven meterics, interactively collected from users and also known as online metrics, are used in evaluation. Before addressing these metrics, three issues will be reviewed in the following paragraphs.
+
+**1) Underfitting and Overfitting** \
+$\quad$ **Underfitting** is a situation that both training and test errors are high while a model is too simple to represent a solution. As figuring out, a researcher should determine whether the model is too simple to represent the solution. **Overfitting** is a circumstance that the training error is low while the test error is high as well as a model is too complex to represent a solution.
+
+Sometimes, overfitting occurs due to noise in data, lack of data (insufficient variety features of training data). The decision boundary of the model is distorted by noise and insufficient variety features of data makes wrong criterion to classify data. Like the paper reviewed in the Decision Tree section, the model is overfitted if the tree is splitted too much (e.g. fully-grown tree). Therefore, a training error alone is not a good indicator to evaluate the model.
+
+$\quad$ Oscam's Razor is a principle that a simpler model is better than a complex model if both models have the same performance in a certain problem. Based on the principle, a model is evaluated with the complexity of the model. **Minimum Description Length (MDL)** $L(M, D)$ is a quantitative measure to evaluate the complexity of the model, normally used in cost.
+
+$$
+L(M, D) = L(M) + L(D|M) \begin{cases} L(M) & \text{ is the length of the model} \\ L(D|M) & \text{ is the length of the data given the model} \end{cases}
+$$
+
+Take an example of a decision tree, the length of the model $L(M)$ is the number of increased child nodes while splitting the tree and the length of the data given the model $L(D|M)$ encodes the misclassification errors. The MDL cost represents the number of bits to encode.
+
+$\quad$ **Pre-Pruning** is another method to prevent overfitting. As the paper already reviewed in the Decision Tree section, for example, the tree is stopped before it becomes a fully-grown tree. More specifically, stopping conditions are that **1.** stop when the tree reaches a certain depth, **2.** stop when the number of instances in a node is less than a certain threshold, **3.** stop if all instances in a node belong to the same class, **4.** stop if the split does not improve impurity measures like Gini index or information gain, and **5.** stop if class distributions of instances are independent of the available features (Chi-Square ($\chi^2$) test).
+
+$\quad$ Finally, **Post-Pruning** is a method to prevent overfitting. With the decision tree example, after cutting the subtree in a certain depth, if the generalization error improves, the subtree is pruned as replacing the subtree with a leaf node. A class label of the leaf node is determined by the majority class of instances in the subtree. As a cost function, the MDL cost is available.
+
+With an assumption that the performance of the decision tree on unseen data will be slightly worse than on the training data, **1.** Pessimistic Pruning adds a small number of errors as a penalty (such as 0.5) to the training error. If the pessimistic error becomes bigger than before splitting, the branch of the tree is pruned, only remaining the parent node. For example, if a parent node has 20 and 10 instances of class A and B, respectively, and 4 child nodes have (8,4), (3,4), (4,1), (5,1) instances of class A and B, respectively, (assume that a penalty is 0.5 and the majority class is a correct label in each node)
+
+$$
+\begin{aligned}
+\text{Training Error (before splitting)} & = \frac{10}{30} \\
+\text{Pessimistic Error (before splitting)} & = \frac{10 + (0.5 \times 1)}{30} \\
+\text{Training Error (after splitting)} & = \frac{4 + 3 + 1 + 1}{30} = \frac{9}{30} \\
+\text{Pessimistic Error (after splitting)} & = \frac{9 + (0.5 \times 4)}{30}
+\end{aligned}
+$$
+
+resulting in the pessimistic error after splitting is bigger than before splitting, so the branch is pruned.
+
+Adversarily, **2.** Optimistic Pruning assumes that the performance of the decision tree on unseen data will be same as on the training data, even becoming better when the tree is pruned its branch. The pruning expects good generalization by removing the branch. The algorithm prunes a branch if the optimistic error in child nodes is greater than the optimistic error in the parent node. (*For a tied case, TEST and EXAM make both pruning and not pruning correct. The professor said that whether the branch is trimmed or not is depended on a programmer*) Take the sampe example tree above as an example. For the error is decreased after splitting ($\frac{10}{30} \to \frac{9}{30}$), the branch should not be pruned.
+
+**3.** Reduced Error Pruning uses a validation set to prune the tree. Each subtree is tested on the validation set to see if removing the subtree improves the accuracy of the tree. If the accuracy is improved or unchanged, the subtree is pruned.
+
+**2) Issues Hindering Train** \
+$\quad$ **Missing Values** affect the performance of the model. For example, the decision tree is affected from the missing values by computing the impurity measures, distributing the data with missing values, and conducting a test with a instance with missing values.
+
+Specifically, the problems are handled as the following. **1.** Computing Impurity Measure: During computing the Entropy of each child node, the missing values are ignored and not counted. But when computing the whole Entropy of the children, the missing values are counted in a denominator (since it was included in the parent node) and not counted in a numerator (since it was ignored in the child node).
+
+**2.** Distribute Instances: Using a class label of the data with missing values, the instance is distributed to child nodes as probabilities. For example, if there was 7 True and 3 False in the parent node, the instance with missing values was True, and an attribute divided the data into (0 True, 3 False) and (2 True, 4 False), the instance is distributed to the child nodes as (0 + 3/9 True, 3 False) and (2 + 6/9 True, 4 False).
+
+**3.** Classify Instances: When it comes to testing an instance with missing values, the instance follows the bigger probability of the majority attribute value. For example, if a tree is trained the number of True instances 3.67 and False instances 6.33, the instance with missing values follows the False branch.
+
+**Data Fragmentation** occurs when the decision tree splits the dataset into smaller and smaller subsets as it grows deeper. As the paper already reviewed, this causes overfitting. In addition ot this, it leads to insufficient data for statistical significance. When it comes to analyzing the data, if the data becomees too fragmented, the number of predicted data at leaf nodes becomes too small to infer reliable patterns.
+
+**Search Strategy** arises since finding the optimal decision tree is NP-hard. Algorithms constructing decision trees have adopted a greedy search. The paper already reviewed about this. **Expressiveness** is another limitation of decision trees. The decision tree is not expressive enough to represent the complex relationship between features and class labels. Non-linear relationships are not well represented in the decision tree. **Tree Replication** is the other issue. A decision tree can be duplicated easily in the multiple branches to capture certain patterns in the data. In other words, same subtrees appears in different branches, which makes the tree redundant and complex.
+
+**3) Model Evaluation** \
+$\quad$ In order to know how evaluate the model, **1. Metrics**, **2. Methods for performance evaluation**, and **3. Methods for model comparison** are needed.
+
+$\quad$ In terms of binary classification, the following confusion matrix is used as **Metrics**.
+
+$$
+\begin{array}{|c|c|}
+\hline
+& \text{Predicted Class} \\
+\hline
+\text{Actual Class} & \begin{array}{c|c}
+& \text{Positive} & \text{Negative} \\
+\hline
+\text{Positive} & \text{TP (a)} & \text{FN (b)} \\
+\hline
+\text{Negative} & \text{FP (c)} & \text{TN (d)} \\
+\end{array} \\
+\hline
+\end{array}
+$$
+
+From the confusion matrix, accuracy, precision, recall, and F1 score are defined as
+
+$$
+\begin{aligned}
+\text{Accuracy} & = \frac{a + d}{a + b + c + d} & = \frac{TP + TN}{TP + TN + FP + FN} \\
+\text{Precision} & = \frac{a}{a + c} & = \frac{TP}{TP + FP} \\
+\text{Recall} & = \frac{a}{a + b} & = \frac{TP}{TP + FN} \\
+\text{F1 Score} & = & = \frac{2 \times \text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{aligned}
+$$
+
+Accuracy itself has limitations that it does not shows the performance of the model when the data is imbalanced. For example, if 80% of the data is class C1, 20% is class C2, and the model predicts all instances as C1, the accuracy is 80%. However, the model does not predict any instances as C2, which is not a good model. Furthermore, the metrics does not contain the information of FN and FP which are crucial in some cases.
+
+$\quad$ To overcome the limitations, **Cost Matrix** assigns weights to TP, TN, FP, and FN, calculating the cost of the model.
+
+$$
+\begin{array}{|c|c|}
+\hline
+& \text{Predicted Class} \\
+\hline
+\text{Actual Class} & \begin{array}{c|c}
+C(i \mid j) & \text{Positive} & \text{Negative} \\
+\hline
+\text{Positive} & C(\text{Yes} \mid \text{Yes}) & C(\text{No} \mid \text{Yes}) \\
+\hline
+\text{Negative} & C(\text{Yes} \mid \text{No}) & C(\text{No} \mid \text{No}) \\
+\end{array} \\
+\hline
+\end{array} \\
+i = \text{ predicted class, } j = \text{ actual class} \\
+\mathbf{\text{Total Cost}} = TP \times C(\text{Yes} \mid \text{Yes}) + FN \times C(\text{No} \mid \text{Yes}) + FP \times C(\text{Yes} \mid \text{No}) + TN \times C(\text{No} \mid \text{No})
+$$
+
+Based on the Cost Matrix, the four metrics are analyzed as follows: Accuracy is propotional to the cost if the costs of TP and TN are the same and the costs of FP and FN are the same. Precision is biased to the cost of TP and FP, Recall is biased to the cost of TP and FN, and F1 Score is biased to all except the cost of TN.
+
 
 ### References
 
