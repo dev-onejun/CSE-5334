@@ -49,6 +49,7 @@ $3.$ Size of training and test sets
     $\to$ therefore, to adjust hyperparameters with the training result, validation data is used.
 
     * After performing evaluation during training step, validation data is used for hyperparameter tuning (training?) but isn't it make the model change?: traiditonal 모델들은 train 한번하면 끝나니까. deep learning은 epoch가 여러번 돌자너.
+        - sampling 을 제대로 했다면 문제 없을듯?
 
 * Methods for Model Comparision
 

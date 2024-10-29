@@ -30,7 +30,8 @@ $$
 \text{K-Nearest Neighbor (KNN)} & \text{Support Vector Machine (SVM)} \\
 \hline
 \text{Parallel Exemplar-Based Learning System (PEBLS)} & \text{Artificial Neural Networks (ANN)} \\
-\text{Multi-Layer Perceptron (MLP)} & \text{} \\
+\hline
+\text{Multi-Layer Perceptron (MLP)} & \text{Minimum Description Length (MDL)} \\
 \hline
 \end{array}
 $$
@@ -783,7 +784,7 @@ Specifically, the problems are handled as the following. **1.** Computing Impuri
 **3) Model Evaluation** \
 $\quad$ In order to know how evaluate the model, **1. Metrics**, **2. Methods for performance evaluation**, and **3. Methods for model comparison** are needed.
 
-$\quad$ In terms of binary classification, the following confusion matrix is used as **Metrics**.
+$\quad$ In terms of binary classification, the following confusion matrix is used as **1. Metrics**.
 
 $$
 \begin{array}{|c|c|}
@@ -814,6 +815,8 @@ $$
 
 Accuracy itself has limitations that it does not shows the performance of the model when the data is imbalanced. For example, if 80% of the data is class C1, 20% is class C2, and the model predicts all instances as C1, the accuracy is 80%. However, the model does not predict any instances as C2, which is not a good model. Furthermore, the metrics does not contain the information of FN and FP which are crucial in some cases.
 
+Precision is the ratio that, among all the predicted positive, how many are actually positive. Recall is the ratio that, among all the actual positive, how many are predicted as positive. F1 Score is the harmonic mean of Precision and Recall.
+
 $\quad$ To overcome the limitations, **Cost Matrix** assigns weights to TP, TN, FP, and FN, calculating the cost of the model.
 
 $$
@@ -835,6 +838,47 @@ i = \text{ predicted class, } j = \text{ actual class} \\
 $$
 
 Based on the Cost Matrix, the four metrics are analyzed as follows: Accuracy is propotional to the cost if the costs of TP and TN are the same and the costs of FP and FN are the same. Precision is biased to the cost of TP and FP, Recall is biased to the cost of TP and FN, and F1 Score is biased to all except the cost of TN.
+
+$\quad$ Although the defined metrics above, a performance of a model is depended on other factors like class distribution of a dataset, the cost value of misclassification, and the size of training and test sets. Learning curve shows how accuracy changes as the number of training samples increases. Arithmetic sampling (Langley, et al.) and Geometric sampling (Provost, et al.) are two ways to make a learning curve. Normally, the small number of samples shows a low accuracy due to the bias and variance of the samples.
+
+$\quad$ Five categories of **2. Methods for proper performance evaluation (sampling and validation techniques)** are used. **Holdout** is a simple way to split the dataset into training and test sets with the predefined ratio such as 70:30 or 80:20. However, the ratio of classes in the training and test sets may not be the same, resulting in not reliable estimation especially for small datasets.
+
+**Random subsampling (Repeated Holdout)** is a technique to repeat the holdout method multiple times. Each time, the model is trained and tested with different samples, randomly divided from the dataset. The final performance is averaged over these iterations. Nevertheless, the weight of each sample is different in the model due to the different number of times the sample is selected in the training and test sets.
+
+**Cross validation** is another technique to estimate the performance of a model. K-fold cross validation divides the dataset into $K$ parts and trains the model with $K-1$ parts and tests with the remaining part, iterating $K$ times. While this method is a good way to estimate the performance of a model, applying both easy and hard samples evenly, it is computationally expensive. The maximum value of $K$ is $n$, which is called Leave-one-out, also reinforcing the benefit and drawback of the method. Empirically, $K$ is set to 10 (the professor said. 5 to 10 normally).
+
+**Stratified sampling** is a method to ensure that each splitted set (training, test, or etc.) has the same ratio of classes as the original dataset. The distribution of classes is particularly important in imbalanced datasets. Mixing the cross validation, repeated stratified cross validation ensures the same ratio of each fold, providing a more reliable estimation of the model performance.
+
+**Bootstrap** is the other sampling technique, which samples the dataset with replacement. In other words, each training set has duplicated samples.
+
+$\quad$ The test data is not used in any circumstances for training the model. The chance of determining the result is only once. Noting that the test data should be used only once, the need of validation data arises for adjusting the model after the evaluation which is called hyperparameter tuning. Once the evaluation is complete, all the data is used for building the final model.
+
+$\quad$ In summary, to evaluate the model properly, the sampling and validation techniques are important. Using train, test, validation sets for large data, balancing a unbalanced dataset, and using cross validation for small datasets are the key points to consider.
+
+$\quad$ ROC (Receiver Operating Characteristic) is a method for **3. Methods for model comparison**. Each axis of ROC curve represents the probability of True Positive (y-axis) and False Positive (x-axis) for a specific event. Specifically, each axis is TPR (True Positive Rate) and FPR (False Positive Rate) which are calculated as
+
+$$
+\begin{align*}
+\text{TPR} &= \frac{\text{TP}}{\text{TP} + \text{FN}} \\
+\text{FPR} &= \frac{\text{FP}}{\text{FP} + \text{TN}}
+\end{align*}
+$$
+
+Since $TPR + FNR = 1$ and $FPR + TNR = 1$, only one of them is needed to draw the curve. Every threshold, a probability between the predicted probabilities of two data points, is a single point on the ROC curve. The area under the ROC curve is called AUC (Area Under the Curve) which illustrates the performance of the model. The closer the AUC is to 1, the better the model is. The closer the AUC is to 0.5, the worse the model is. (the paper has reviewed in binary classification so far, which makes the lowest performance of the model is 0.5) The diagonal line of 0.5 refers to a random guess.
+
+<!--When it comes to comparing two models, the performance of the models is also determined by the prediction results of the models. A specific value of FPR for example, if -->
+When it comes to comparing two models, the performance of the models is also determined by the problem statement that the models are applied to. If the statement requires a low FPR, the model with a lower FPR is better. If the statement requires a high FPR, the model with a higher FPR is better.
+
+To draw the ROC curve, the model should predict the probability of each test instance. Then, the curve is drawn by moving the threshold between the two probabilities. Normally, the negative labeled samples are placed on the left side and the positive labeled samples are placed on the right side of the table. For the tip of the exam, it is recommended to draw the ROC curve by moving $\frac{1}{\text{# of positive labeled samples}}$ or $\frac{1}{\text{# of negative labeled samples}}$ to the bottom or left for each threshold respectively on the each point of the ROC curve from the $(1, 1)$ data point with the lowest threshold (probability) of the table.
+
+In conclusion, ROC curve gives a comprehensive view of the model's performance than a single metrics like accuracy and f1-score which is tied to one threshold, by assessing the performance across all possible thresholds.
+
+
+
+
+
+
+
 
 
 ### References
