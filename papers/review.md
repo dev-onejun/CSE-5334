@@ -33,6 +33,10 @@ $$
 \hline
 \text{Multi-Layer Perceptron (MLP)} & \text{Minimum Description Length (MDL)} \\
 \hline
+\text{Receiver Operating Characteristic (ROC)} & \text{True Positive Rate (TPR)} \\
+\hline
+\text{False Positive Rate (FPR)} & \text{Area Under the Curve (AUC)} \\
+\hline
 \end{array}
 $$
 
@@ -872,6 +876,37 @@ When it comes to comparing two models, the performance of the models is also det
 To draw the ROC curve, the model should predict the probability of each test instance. Then, the curve is drawn by moving the threshold between the two probabilities. Normally, the negative labeled samples are placed on the left side and the positive labeled samples are placed on the right side of the table. For the tip of the exam, it is recommended to draw the ROC curve by moving $\frac{1}{\text{# of positive labeled samples}}$ or $\frac{1}{\text{# of negative labeled samples}}$ to the bottom or left for each threshold respectively on the each point of the ROC curve from the $(1, 1)$ data point with the lowest threshold (probability) of the table.
 
 In conclusion, ROC curve gives a comprehensive view of the model's performance than a single metrics like accuracy and f1-score which is tied to one threshold, by assessing the performance across all possible thresholds.
+
+$\quad$ On the other hand, how can models be compared whey they are tested on different datasets, especially when the numbers of instances are different? **Test of Significance** is a method to statistically compare models. For example, suppose that Model 1 achieved 85% accuracy but was tested on only 30 instances, while Model 2 achieved 75% accuracy but was tested on 5000 instances. Although the accuracy of Model 1 is higher, it is not clear whether Model 1 is better than Model 2 since the number of tested instances in Model 1 is smaller than Model 2.
+
+A random variable $X$ is the number of correct predictions, following a binomial distribution expressed as $X \sim B(n, p)$, where $n$ is the number of samples and $p$ is the probability of success. The probability of success $p$ can be accuracy, f1-score, auc-roc, error rate, etc. With the binomial distribution, the confidence interval is derived for the large number of samples (normally more than 30 samples) using the normal distribution. The confidence interval is between the following formula (the formula will be given in the test);
+
+$$
+\text{Confidence Interval} = \frac{2 \times N \times p + Z_{\alpha/2}^2 \pm \sqrt{Z_{\alpha/2}^2 + 4 \times N \times p - 4 \times N \times p^2}}{2 \times (N + Z_{\alpha/2}^2)}
+$$
+
+$Z_{\alpha/2}$ is the z-score value for the given confidence level $\alpha$. For example, $Z_{0.05/2} = 1.96$ for 95% confidence level. In the bell curve, roughly 68% of the data is within $1 \sigma$, 95% is within $2 \sigma$, and 99.7% is within $3 \sigma$. (the table of z-score will be also given in the test) The more the number of samples increases, the more the confidence interval narrows down.
+
+$\quad$ Here is the example of comparing two models with error rates. Let Model 1 is tested on dataset 1 with size $n_1$ and error rate $e_1$ and Model 2 is tested on dataset 2 with size $n_2$ and error rate $e_2$. Each error rate follows a normal distribution $e \sim N(n_i \times e_i, \sigma_i)$, where $\hat{\sigma_i}^2 = \frac{e_i (1 - e_i)}{n_i}$ approximately. Dataset 1 and 2 are assumed to be independent.
+
+The performance difference between Model 1 and Model 2 is defined as $d = e_1 - e_2$ which also follows a normal distribution $d \sim N(d_t, \sigma_t^2)$ where $d_t$ is the true difference between the two models and $\sigma_t^2 = \hat{\sigma_1}^2 + \hat{\sigma_2}^2$ since the two datasets are independent. Therefore, the $(1 - \alpha)$ confidence interval for the true difference $d_t = d \pm Z_{\alpha/2} \hat{\sigma_t}$.
+
+$\quad$ When $M_1 = {n_1 = 30, e_1 = 0.15}$ and $M_2 = {n_2 = 5000, e_2 = 0.25}$ are given, let $d = e_2 - e_1 = 0.1$. Then the confidence interval for the true difference $d_t$ is calculated as follows:
+
+$$
+\begin{aligned}
+\hat{\sigma_1}^2 &= \frac{e_1 (1 - e_1)}{n_1} + \frac{e_2 (1 - e_2)}{n_2} \\
+&= \frac{0.15 \times 0.85}{30} + \frac{0.25 \times 0.75}{5000} \\
+&= 0.0043 \\
+d_t &= 0.1 \pm 1.96 \times \sqrt{0.0043} \\
+&= 0.1 \pm 0.128 \\
+&= [-0.028, 0.228]
+\end{aligned}
+$$
+
+Since the confidence interval includes 0, it is not statistically significant to say that Model 2 is better than Model 1.
+
+
 
 
 
