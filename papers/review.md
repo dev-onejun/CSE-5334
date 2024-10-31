@@ -749,7 +749,7 @@ $$
 L(M, D) = L(M) + L(D|M) \begin{cases} L(M) & \text{ is the length of the model} \\ L(D|M) & \text{ is the length of the data given the model} \end{cases}
 $$
 
-Take an example of a decision tree, the length of the model $L(M)$ is the number of increased child nodes while splitting the tree and the length of the data given the model $L(D|M)$ encodes the misclassification errors. The MDL cost represents the number of bits to encode.
+Take an example of a decision tree, the length of the model $L(M)$ is the number of increased child nodes while splitting the tree and the length of the data given the model $L(D \mid M)$ encodes the misclassification errors. The MDL cost represents the number of bits to encode.
 
 $\quad$ **Pre-Pruning** is another method to prevent overfitting. As the paper already reviewed in the Decision Tree section, for example, the tree is stopped before it becomes a fully-grown tree. More specifically, stopping conditions are that **1.** stop when the tree reaches a certain depth, **2.** stop when the number of instances in a node is less than a certain threshold, **3.** stop if all instances in a node belong to the same class, **4.** stop if the split does not improve impurity measures like Gini index or information gain, and **5.** stop if class distributions of instances are independent of the available features (Chi-Square ($\chi^2$) test).
 
