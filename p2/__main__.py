@@ -214,7 +214,7 @@ def create_model() -> VotingClassifier:
     return models
 
 
-def train_models(X_train, y_train, label_encoder, models) -> None:
+def train_models(X_train, y_train, models) -> tuple:
     """
     Train a voting ensemble model with multiple models
 
@@ -224,25 +224,19 @@ def train_models(X_train, y_train, label_encoder, models) -> None:
     y_train : np.ndarray - encoded labels of the data to be used for training
     label_encoder : LabelEncoder - label encoder used to encode and decode the labels
     models : VotingClassifier - an ensemble model with multiple models
+
+    Returns
+    -------
+    y_pred : np.ndarray - predicted labels of the training data
+    accuracy : float - accuracy of the training data
     """
 
     models.fit(X_train, y_train)
 
     y_pred = models.predict(X_train)
-
     accuracy = accuracy_score(y_train, y_pred)
-    print(f"Training set accuracy: %.3f" % accuracy)
 
-    print("Confusion Matrix")
-    print(
-        pd.crosstab(
-            label_encoder.inverse_transform(y_train),
-            label_encoder.inverse_transform(y_pred),
-            rownames=["Actual"],
-            colnames=["Predicted"],
-            margins=True,
-        )
-    )
+    return y_pred, accuracy
 
 
 def evaluate_voting_model(models, X, y, label_encoder, data_type) -> None:
@@ -278,7 +272,7 @@ def evaluate_voting_model(models, X, y, label_encoder, data_type) -> None:
     )
 
 
-def stratified_cross_validation(X, y_encoded, models) -> list:
+def stratified_cross_validation(X, y_encoded, models, K=10) -> list:
     """
     Perform 10-fold stratified cross-validation and return the accuracies of each fold
 
@@ -292,7 +286,7 @@ def stratified_cross_validation(X, y_encoded, models) -> list:
     -------
     accuracies : list - accuracies of each fold
     """
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    skf = StratifiedKFold(n_splits=K, shuffle=True, random_state=RANDOM_STATE)
 
     accuracies = []
     for train_index, test_index in skf.split(X, y_encoded):
@@ -326,7 +320,20 @@ def main():
     )
 
     models = create_model()
-    train_models(X_train, y_train, label_encoder, models)
+    y_pred, accuracy = train_models(X_train, y_train, models)
+    print(f"Training set accuracy: %.3f" % accuracy)
+
+    print("Confusion Matrix")
+    print(
+        pd.crosstab(
+            label_encoder.inverse_transform(y_train),
+            label_encoder.inverse_transform(y_pred),
+            rownames=["Actual"],
+            colnames=["Predicted"],
+            margins=True,
+        )
+    )
+
     evaluate_voting_model(models, X_validate, y_validate, label_encoder, "Validate")
 
     """
@@ -339,7 +346,7 @@ def main():
     print("-" * 10 + " Task 2 " + "-" * 10)
 
     models = create_model()
-    train_models(X, y_encoded, label_encoder, models)
+    _ = train_models(X, y_encoded, models)
 
     X_test, y_test, _ = load_data("./dummy_test.csv")
     evaluate_voting_model(models, X_test, y_test, label_encoder, "Test")
@@ -354,7 +361,7 @@ def main():
 
     models = create_model()
 
-    accuracies = stratified_cross_validation(X, y_encoded, models)
+    accuracies = stratified_cross_validation(X, y_encoded, models, 10)
     print(f"Cross-validation scores: {accuracies}")
     print(f"Average accuracy: %.2f" % np.mean(accuracies))
 
