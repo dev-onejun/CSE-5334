@@ -40,6 +40,10 @@ $$
 \end{array}
 $$
 
+***Keywords*** \
+**Medoid**: The point in the cluster that minimizes the sum of the distances between itself and all the other points in the cluster.
+
+
 ### I. Introduction
 
 ### II. Literature Review
@@ -905,6 +909,57 @@ d_t &= 0.1 \pm 1.96 \times \sqrt{0.0043} \\
 $$
 
 Since the confidence interval includes 0, it is not statistically significant to say that Model 2 is better than Model 1.
+
+#### L. Clustering
+
+$\quad$ Clustering is a type of unsupervised learning, which groups similar objects together within the feature of data. Two compatible goals of clustering are to minimize the intra-cluster distance and maximize the inter-cluster distance. **Intra-cluster distance** is the distance between objects in the same cluster, and **inter-cluster distance** is the distance between objects in different clusters. Clustering is utilized in various fields that have similar functionality such as image analysis and bioinformatics to reduce the size of data and to find patterns in data.
+
+**Types of Clusters** \
+$\quad$ **1) Well-separated clusters** - refer to a cluster that data points are clearly separated from one another as a distinct group. \
+$\quad$ **2) Center-based clusters** - is a set of clusters represented by a central point of each cluster, often a centroid or medoid, which is the most representative point of a cluster. K-means is a well-known center-based clustering algorithm. \
+$\quad$ **3) Contiguous clusters** - relies on the adjacency data points to form a cluster, meaning that a point is more similar or closer to one or more points in the same cluster than to any point outside the cluster. In other words, each data point in a contiguous cluster is in close proximity to at least one other point in the same cluster. The cluster is useful to identify clusters with connected regions in which spatial data analysis or image segmentation is required. \
+$\quad$ **4) Density-based clusters** - are defined by regions of high data point density, separated by regions of low density. Clusters consequently take arbitrary shapes so that this approach is particularly effective for datasets with noise and outliers or for datasets with no spherical or uniformly distributed. \
+$\quad$ **5) Property (or Conceptual) clusters** - are formed by common attributes or properties shared by data points rather than their spatial or density-based proximity. COWEB is the best known algorithm for this approach [[#](#mjx-eqn-#)]. \
+$\quad$ **6) Others** - Clusters can be defined by an objectibe function, producing numerous clusters with different shapes and sizes. However, this leads to an NP-hard problem that finding the optimal clusters for a given dataset is computationally infeasible.
+
+In conclusion, characteristics of input data are crucial to determine which clustering algorithm is the most suitable for the data to form which types of clusters. Specifically, 1) metrics of proximity, density, sparseness, and similarity, 2) types of attributes and data, 3) dimensionality of data, 4) noise and outliers, and 5) distribution of data points are the key factors.
+
+$\quad$ A membership standard defines the rules (algorithms) that describe the flexibility, exclusivity, and completeness of data points' allocation to clusters. How clusters represent the key structure of the data is depended on what the membership standard is adopted. In this paper, Partial Clustering and Hierarchical Clustering are mainly addressed.
+
+**Partitional Clustering** \
+$\quad$ Partitional Clustering divides each data into non-overlapping subsets such that each data point belongs to exactly one subset. K-means is the most known partitional clustering algorithm. The algorithm finds $K$ clusters by iteratively assigning each data point to the nearest centroid. A specific algorithm of K-means is below
+
+$$
+\mathbf{\text{K-means Algorithm}} \\
+\begin{array}{rl}
+\hline
+\text{} & \text{Initialize with randomly selected K initial centroids} \\
+\mathbf{\text{repeat}} & \text{} \\
+\text{} & \text{Assign each data point to the nearest centroid} \\
+\text{} & \text{Update the centroid to the mean of all data points assigned to it} \\
+\mathbf{\text{until}} & \text{Centroids do not change} \\
+\end{array}
+$$
+
+The centroid $m_i$ is normally calculated as the mean of the points in the cluster $\left( m_i = \frac{1}{\mid C_i \mid} \sum_{x \in C_i} x \right)$ and the closeness between data points typically measured by Euclidean distance, cosine similarity, or correlation. The complexity of algorithm is $O(n \times k \times I \times d)$ where $n$ stands for the number of data points, $K$ is the number of clusters as a hyperparameter, $I$ is the number of iterations during the algorithm, and $d$ is the number of dimensions (attributes) in the data.
+
+$\quad$ Clusters, an output of the algorithm, can be different depending on the value of $K$ or the initial centroids of the same $K$s. The different $K$ values inevitably makes different clusters as well as the different positions of initial centroids among the same $K$s lead to different clusters from a same dataset.
+
+$\quad$ To evaluate which cluster is the best, SSE (Sum of Squared Error) is commonly used, calculating the squared distance of each data point to its nearest centroid and summing all the squared distances. The lower the SSE, the better the cluster. The SSE value normally becomes lower when the number of $K$ increases.
+
+
+
+HOW TO CHOOSE THE SUITABLE K VALUE FOR A DATASET?
+
+**Hierarchical Clustering** \
+$\quad$ While Partitional Clustering seperates data into non-overlapping subsets, Hierarchical Clustering organizes a set of nested clusters as a hierarchical tree.
+
+**Other Distinctions of Clusters' Sets** \
+$\quad$ **Exclusive vs. Non-exclusive** $\qquad$ Exclusive clustering, also known as hard clustering or non-fuzzy clustering, assigns each data point to exactly one cluster, while non-exclusive clustering allows a data point to belong to multiple clusters. \
+$\quad$ **Fuzzy vs. Non-fuzzy** $\qquad$ While non-fuzzy clustering, also known as hard clustering or exclusive clustering, assigns a data point to exactly one cluster, fuzzy clustering allows a data point to belong to multiple clusters with different weights between 0 and 1. The sum of weights for each data point must be 1. For example, a data point can belong to cluster $A$ with a probability of 0.7 and cluster $B$ with a probability of 0.3. \
+$\quad$ **Partial vs. Complete** $\qquad$ Partial clustering allows a data point not to belong to any cluster, resulting in sets of clusters that do not cover all data points. Complete clustering assigns each data point to at least one cluster, resulting in sets of clusters that cover all data points. \
+$\quad$ **Homogeneous vs. Heterogeneous** $\qquad$ Homogeneous clustering groups similar objects together, while heterogeneous clustering groups dissimilar objects together.
+
 
 
 
