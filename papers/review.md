@@ -736,7 +736,7 @@ $\quad$ The design of ANN is a issue. Many types of neural networks like AlexNet
 
 #### K. Evaluation in Classification
 
-$\quad$ Evaluation is a barometer of models whether they are trained well. Depending on the goal of models, it is important that suitable metrics are adopted to evaluate the models they achieve the goal of certain problems. Both statistically defined metrics, also referred to offline metrics, and data-driven meterics, interactively collected from users and also known as online metrics, are used in evaluation. Before addressing these metrics, three issues will be reviewed in the following paragraphs.
+$\quad$ Evaluation is a barometer of models whether they are trained well. Depending on the goal of models, it is important that suitable metrics are adopted to evaluate the models to check whether they achieve the goal of certain problems. Both statistically defined metrics, also referred to offline metrics, and data-driven meterics, interactively collected from users and also known as online metrics, are used in evaluation. Before addressing these metrics, three issues will be reviewed in the following paragraphs.
 
 **1) Underfitting and Overfitting** \
 $\quad$ **Underfitting** is a situation that both training and test errors are high while a model is too simple to represent a solution. As figuring out, a researcher should determine whether the model is too simple to represent the solution. **Overfitting** is a circumstance that the training error is low while the test error is high as well as a model is too complex to represent a solution.
