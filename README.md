@@ -39,7 +39,10 @@ Programming Assignment 오래 걸릴거니까 빨리 시작해라 ,,
 
                 - k+k개에서 documents 종류가 다르면 query의 term에 대해 값을 가지고 있지 않을 수 있음
                     - top k로 sorting한 것이므로, 없는 term의 가장낮은 값으로 대체해 사용하면 됨. 그 값은 해당 term이 없는 문서가 가질 수 있는 최대값임(sorting한 것이므로)
-                    - 단 false score라고 표시하는듯?
+                 
+### Assessment Result
 
-                - 이후 tf-idf score 랭킹에서 true이면 그대로 사용하면 되고,
-                    false이면 없는 term list에 대해 fetch more해서 랭킹 갱신하면 됨
+Got minus at IndexError at the `getidf()` function and results differences in TF-IDF values.
+
+- Needed to use try-catch when accessing to the corpus
+- ?
