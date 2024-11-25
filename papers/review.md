@@ -921,7 +921,7 @@ $\quad$ **1) Well-separated clusters** - refer to a cluster that data points are
 $\quad$ **2) Center-based clusters** - is a set of clusters represented by a central point of each cluster, often a centroid or medoid, which is the most representative point of a cluster. K-means is a well-known center-based clustering algorithm. \
 $\quad$ **3) Contiguous clusters** - relies on the adjacency data points to form a cluster, meaning that a point is more similar or closer to one or more points in the same cluster than to any point outside the cluster. In other words, each data point in a contiguous cluster is in close proximity to at least one other point in the same cluster. The cluster is useful to identify clusters with connected regions in which spatial data analysis or image segmentation is required. \
 $\quad$ **4) Density-based clusters** - are defined by regions of high data point density, separated by regions of low density. Clusters consequently take arbitrary shapes so that this approach is particularly effective for datasets with noise and outliers or for datasets with no spherical or uniformly distributed. DBSCAN \
-$\quad$ **5) Property (or Conceptual) clusters** - are formed by common attributes or properties shared by data points rather than their spatial or density-based proximity. COWEB is the best known algorithm for this approach [[#](#mjx-eqn-#)]. \
+$\quad$ **5) Property (or Conceptual) clusters** - are formed by common attributes or properties shared by data points rather than their spatial or density-based proximity. COWEB is the best known algorithm for this approach [[5](#mjx-eqn-5)]. \
 $\quad$ **6) Others** - Clusters can be defined by an objectibe function, producing numerous clusters with different shapes and sizes. However, this leads to an NP-hard problem that finding the optimal clusters for a given dataset is computationally infeasible.
 
 In conclusion, characteristics of input data are crucial to determine which clustering algorithm is the most suitable for the data to form which types of clusters. Specifically, 1) metrics of proximity, density, sparseness, and similarity, 2) types of attributes and data, 3) dimensionality of data, 4) noise and outliers, and 5) distribution of data points are the key factors.
@@ -1016,6 +1016,7 @@ $$\tag*{}\label{1} \text{[1] Simpson's paradox, Wikipedia, https://en.wikipedia.
 $$\tag*{}\label{2} \text{[2] Normalization and pre-tokenization, HuggingFace, https://huggingface.co/learn/nlp-course/chapter6/4, accessed in Aug. 26th, 2024}$$
 $$\tag*{}\label{3} \text{[3] Plot Figure of Curse of Dimensionality, https://i.sstatic.net/EpcHw.png, accessed in Sep. 17th 2024}$$
 $$\tag*{}\label{4} \text{[4] Ripon Patgiri et al., "Empirical Study on Airline Delay Analysis and Prediction", 2020, http://dx.doi.org/10.48550/arXiv.2002.10254}$$
+$\tag*{}\label{5} \text{[5] Conceptual Clustering, Wikipedia, https://en.wikipedia.org/wiki/Conceptual_clustering, Accessed in Nov. 12th, 2024}$
 
 ### Appendix
 
