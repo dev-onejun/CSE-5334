@@ -22,7 +22,7 @@ $$
                 - strength: circle base였던 k-means와 달리, hierarchical은 어떤 모양의 cluster도 만들 수 있다.
                 - limitation: sensitive to noise and outliers (because it only consider the closest point)
             - max
-                - **클러스터 간에 가장 먼 거리를 가진 점들끼리의 거리를 사용한다는거지,
+                - **표의 값을 갱신할 때, 클러스터 간에 가장 먼 거리를 가진 점들끼리의 거리를 사용한다는거지,
                     cluster를 합칠 때는 그 min distances (or max similar) 중에 가장 작은 거리를 사용한다.**
                 - strength: gives a upper bound of the dissimilarity (distance) among data
                             less sensitive to noise and outliers
