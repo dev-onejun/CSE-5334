@@ -37,6 +37,8 @@ $$
 \hline
 \text{False Positive Rate (FPR)} & \text{Area Under the Curve (AUC)} \\
 \hline
+\text{Sum of Squared Error (SSE)} & \text{} \\
+\hline
 \end{array}
 $$
 
@@ -918,7 +920,7 @@ $\quad$ Clustering is a type of unsupervised learning, which groups similar obje
 $\quad$ **1) Well-separated clusters** - refer to a cluster that data points are clearly separated from one another as a distinct group. \
 $\quad$ **2) Center-based clusters** - is a set of clusters represented by a central point of each cluster, often a centroid or medoid, which is the most representative point of a cluster. K-means is a well-known center-based clustering algorithm. \
 $\quad$ **3) Contiguous clusters** - relies on the adjacency data points to form a cluster, meaning that a point is more similar or closer to one or more points in the same cluster than to any point outside the cluster. In other words, each data point in a contiguous cluster is in close proximity to at least one other point in the same cluster. The cluster is useful to identify clusters with connected regions in which spatial data analysis or image segmentation is required. \
-$\quad$ **4) Density-based clusters** - are defined by regions of high data point density, separated by regions of low density. Clusters consequently take arbitrary shapes so that this approach is particularly effective for datasets with noise and outliers or for datasets with no spherical or uniformly distributed. \
+$\quad$ **4) Density-based clusters** - are defined by regions of high data point density, separated by regions of low density. Clusters consequently take arbitrary shapes so that this approach is particularly effective for datasets with noise and outliers or for datasets with no spherical or uniformly distributed. DBSCAN \
 $\quad$ **5) Property (or Conceptual) clusters** - are formed by common attributes or properties shared by data points rather than their spatial or density-based proximity. COWEB is the best known algorithm for this approach [[#](#mjx-eqn-#)]. \
 $\quad$ **6) Others** - Clusters can be defined by an objectibe function, producing numerous clusters with different shapes and sizes. However, this leads to an NP-hard problem that finding the optimal clusters for a given dataset is computationally infeasible.
 
@@ -945,23 +947,60 @@ The centroid $m_i$ is normally calculated as the mean of the points in the clust
 
 $\quad$ Clusters, an output of the algorithm, can be different depending on the value of $K$ or the initial centroids of the same $K$s. The different $K$ values inevitably makes different clusters as well as the different positions of initial centroids among the same $K$s lead to different clusters from a same dataset.
 
-$\quad$ To evaluate which cluster is the best, SSE (Sum of Squared Error) is commonly used, calculating the squared distance of each data point to its nearest centroid and summing all the squared distances. The lower the SSE, the better the cluster. The SSE value normally becomes lower when the number of $K$ increases.
+This leads to the problem that the more the number of $K$ increases, the less the probability of selecting well-separated initial centroids becomes. Assuming that the numbers of data in clusters are same as $n$, the probability becomes
 
+$$
+P = \frac{\text{The number of ways to select one centroid from each cluster}}{\text{The number of ways to select} K \text{centroids from} n \text{points}} = \frac{k! n^k}{(kn)^k} = \frac{k!}{(k)^k}
+$$
 
+which results in $0.00036$ when $k = 10$ for example.
 
-HOW TO CHOOSE THE SUITABLE K VALUE FOR A DATASET?
+$\quad$ To solve the problem, **1)** multiple runs of the algorithm might be considered, but it is not efficient and does not guarantee the best solution with a very small probability as well. **2)** Hierarchical clustering to find initial centroids and **3)** selecting more than $K$ initial centroids and then selecting the most widely separated among these initial centroids are another solutions. **4)** Postprocessing such as reassigning outliers or splitting and merging clusters, and **5)** bisecting K-means are also the solutions.
+
+Possible pre-processing steps are **1)** normalizing the data and **2)** eliminating outliers. Possible post-processing steps are **1)** eliminating smaller clusters which may represent outliers or noise, **2)** splitting a loose cluster which may represent two or more dense clusters, and **3)** merging clusters between two clusters that have relatively low SSE when the number of clusters is too large. (Merging clusters increases the overall SSE)
+
+Bisecting K-means is not susceptible to the initialization problem. As a variant of K-means, the algorithm is able to make both a partitional and hierarchical clustering. To be specific, it selects the cluster with the highest SSE (which might be that it contains several dense clusters) and splits it into two clusters, repeating the process until the number of clusters becomes $K$. The algorithm is more computationally expensive than K-means but typically gives better results. The pseudo code of the algorithm is below.
+
+$$
+\mathbf{\text{Bisecting K-means Algorithm}} \\
+\begin{array}{l}
+\hline
+\text{Initialize the list of clusters with a cluster containing all data points} \\
+\mathbf{\text{repeat}} \\
+\qquad \text{Select a cluster from the list of clusters with the highest SSE} \\
+\qquad \mathbf{\text{for}} \text{ i = 1 to number_of_iterations} \mathbf{\text{do}} \\
+\qquad \qquad \text{Run the K-means algorithm with K = 2 on the selected cluster} \\
+\qquad \mathbf{\text{end for}} \\
+\qquad \text{Add the two resulting clusters to the list of clusters} \\
+\mathbf{\text{until}} \text{ The number of clusters is K} \\
+\end{array}
+$$
+
+$\quad$ Handling empty clusters is another issue in the basic K-means algorithm. This could be solved by **1)** choosing the point that has the maximum distance from the centroid of the cluster with the maximum SSE and reassigning the point to the empty cluster. **2)** Repeating the algorithm is also the solution for this issue too. **3)** When it comes to running the K-means algorithm, rather than calculating the distance between all data points and all centroids after they all belong to clusters, updating the centroids after each data point is assigned to a cluster converges faster and never gets an empty cluster, but it is more expensive and introduces an order dependency. The order dependency means that the result could be different depending on which point is calculated first.
+
+$\quad$ K-means algorithm itself also has limitations when the clusters of the data have different sizes, densities, or shapes. Firstly, the algorithm assumes that all clusters have the same size. However, the radius of the original clusters might be different, causing the non-optimal clusters. Secondly, the algorithm presumes that all clusters have the same density. The problem is derived from the same radius among all clusters likewise the first limitation. This leads clusters to have two dense clusters or splitted one cluster comparing from the original clusters. Lastly, the algorithm is not able to find non-globular shapes such as star-shaped clusters.
+
+These limitations is addressed by constructing a lot of clusters than the original number of clusters and then merging the clusters that have relatively low SSE (postprocessing).
+
+$\quad$ Evaluating a partitional clustering is defined by metrics. Among them, SSE (Sum of Squared Error), the most common metric, is tackled in this paper. It is calculated as the squared distance of each data point to its nearest centroid, summing all the squared distances. The lower the SSE, the better the cluster. The SSE value normally becomes lower when the number of $K$ increases.
+
+$$
+\text{SSE} = \sum_{i=1}^{K} \sum_{x \in C_i} \text{dist}^2(m_i, x)
+$$
+
+$\quad$ SSE enables to choose the optimal value of $K$ as well. The Elbow Method, which the curve looks like an elbow at the optimal $K$ value, is a common technique to determine the optimal $K$ value, plotting the SSE values against the number of clusters. The optimal $K$ value is the point where the SSE value starts to decrease slowly.
 
 **Hierarchical Clustering** \
-$\quad$ While Partitional Clustering seperates data into non-overlapping subsets, Hierarchical Clustering organizes a set of nested clusters as a hierarchical tree.
+$\quad$ While Partitional Clustering seperates data into non-overlapping subsets, Hierarchical Clustering organizes a set of nested clusters as a hierarchical tree which does not need the number of clusters as a hyperparameter. The tree is visualized as a dendrogram where the x-axis of the dendrogram is data points and the y-axis of the dendrogram is the distance or the similarity between data points. If the distance is used, the y-axis starts from 0 and increases as the distance between data points increases. If the similarity is used, the y-axis starts from 1 and decreases as the similarity between data points increases.
+
+* Agglomerative
+* Divisive
 
 **Other Distinctions of Clusters' Sets** \
 $\quad$ **Exclusive vs. Non-exclusive** $\qquad$ Exclusive clustering, also known as hard clustering or non-fuzzy clustering, assigns each data point to exactly one cluster, while non-exclusive clustering allows a data point to belong to multiple clusters. \
 $\quad$ **Fuzzy vs. Non-fuzzy** $\qquad$ While non-fuzzy clustering, also known as hard clustering or exclusive clustering, assigns a data point to exactly one cluster, fuzzy clustering allows a data point to belong to multiple clusters with different weights between 0 and 1. The sum of weights for each data point must be 1. For example, a data point can belong to cluster $A$ with a probability of 0.7 and cluster $B$ with a probability of 0.3. \
 $\quad$ **Partial vs. Complete** $\qquad$ Partial clustering allows a data point not to belong to any cluster, resulting in sets of clusters that do not cover all data points. Complete clustering assigns each data point to at least one cluster, resulting in sets of clusters that cover all data points. \
 $\quad$ **Homogeneous vs. Heterogeneous** $\qquad$ Homogeneous clustering groups similar objects together, while heterogeneous clustering groups dissimilar objects together.
-
-
-
 
 
 
