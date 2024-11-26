@@ -1002,6 +1002,148 @@ $\quad$ **Fuzzy vs. Non-fuzzy** $\qquad$ While non-fuzzy clustering, also known 
 $\quad$ **Partial vs. Complete** $\qquad$ Partial clustering allows a data point not to belong to any cluster, resulting in sets of clusters that do not cover all data points. Complete clustering assigns each data point to at least one cluster, resulting in sets of clusters that cover all data points. \
 $\quad$ **Homogeneous vs. Heterogeneous** $\qquad$ Homogeneous clustering groups similar objects together, while heterogeneous clustering groups dissimilar objects together.
 
+#### M. Association Rule Mining
+
+$\quad$ Association Rule Mining is to find interesting rules that will predict the occurence of an item based on the occurences of other items in a given set of transactions. To understand the concept, the following terms are precedently reviewed; \
+$\qquad \bullet$ **Item**: an object which accounts for a transaction. \
+$\qquad \bullet$ **Itemset**: a collection of one or more items. (Different with a transaction) \
+$\qquad\qquad$ - **k-itemset**: an itemset that contains $k$ items. \
+$\qquad \bullet$ **Support Count $\mathbf{\sigma}$**: a frequency of an itemset in a transaction. \
+$\qquad \bullet$ **Support**: a fraction of support count over the total number of transactions. \
+$\qquad \bullet$ **Frequent Itemset**: an itemset whose support is greater than or equal to a minimum support threshold. \
+$\qquad \bullet$ **Minimum Support (Threshold / Confidence)**: a hyperparameter that determines whether an itemset is frequent or not. \
+$\qquad\qquad$ - if the value is set as low, the number of frequent itemsets will be high. \
+$\qquad\qquad$ - if the value is set as high, the number of frequent itemsets will be low.
+
+**Association Rule** is a statement that describes the probability of a relationship between different non-empty itemsets in a dataset, often expressed as an "if-then" statement, where the presence of "if" itemset implies the presence of "then" itemset. These two itemsets should be disjoint set. {Milk, Diaper} $\to$ {Beer} is an example of an association rule, which means that if (a customer buys) Milk and Diaper, then (the customer will buy) Beer. The rule is evaluated by metrics like Support ($s$) and Confidence ($c$).
+
+$\quad$ In summary,
+
+$$
+\text{Rule: } \{ \text{Milk, Diaper} \} \to \{ \text{Beer} \} \begin{cases}
+\text{Support } s & = \frac{\sigma(\{ \text{Milk, Diaper, Beer} \})}{\text{Total number of transactions}} \\
+\\
+\text{Confidence } c & = \frac{\sigma(\{ \text{Milk, Diaper, Beer} \})}{\sigma(\{ \text{Milk, Diaper} \})}
+\end{cases}
+$$
+
+where confidence and Support are always less than or equal to 1 with the minimum value of 0. Note that the order of itemsets in an association rule affects only the confidence value, not the support value. For example, {Milk, Diaper} $\to$ {Beer} and {Beer} $\to$ {Milk, Diaper} have the same support value, but different confidence values.
+
+$\quad$ The goal of association rule mining is to find all rules that satisfy the minimum support and minimum confidence thresholds.
+
+$$
+\text{Support } s \geq minsup \\
+\text{Confidence } c \geq minconf
+$$
+
+$\quad$ One of approaches that addresses the task of association rule mining is the **Brute-Force** approach, listing all possible association rules, calculating support and confidence for each rule, and removing a rule that does not meet the minimum support and minimum confidence. However, likewise all brute-force approaches, it is computationally expensive in the perspective of the number of items. The number of possible association rules is $3^n - 2^{n+1} + 1$ where $n$ is the number of items in the dataset, which shows $O(3^n)$ time complexity, a np-complete problem due to its exponential growth.
+
+When it comes to a same itemset such as {Milk, Diaper, Beer}, binary partitions of the itemset like {Milk, Diaper} $\to$ {Beer}, {Milk, Beer} $\to$ {Diaper}, {Diaper} $\to$ {Milk, Beer}, etc. have an identical support value with different confidence values. In other words, an itemset has a one support value so that association rules composed by subsets of the itemset has a same support value with different confidence values. With this observation, to overcome the limitation of brute-force approach, the **Apriori Algorithm** introduced two-step approaches, decoupling the support and confidence requirements;
+
+**1) Frequent Itemset Generation** \
+$\quad$ The step is defined to find all frequent itemsets that satisfy the minimum support threshold. The number of possible candidate itemsets are $2^n$ where $n$ is the number of items in the dataset. It can be represented as a tree which the number of nodes in the depth $d$ is $\binom{n}{d}$. **1. Brute-Force** approach is still can be applied to solve this partial step, but it is also still computationally expensive because of the number of possible candidate itemsets $2^n$.
+
+$\quad$ **Apriori Principle** is a principle that if an itemset if frequent, then all of its subsets must also be frequent. Conversely, if an itemset is infrequent, then all of its supersets must also be infrequent (*Contrapositive*). The principle is derived from **Anti-monotone property** which states that the support of an itemset never exceeds the support of its subsets.
+
+![Apriori Principle](./assets/Apriori%20Principle.png)
+
+Using the Apriori principle, the **Apriori Algorithm** prunes a branch of an infrequent node in the the search space represented by the tree of candidate itemsets. Take the following tables for example with the minimum support as 3. Starting from the table of 1-itemsets, the algorithm generates 2-itemsets by joining 1-itemsets without infrequent itemsets.
+
+$$
+\begin{array}{ccc}
+\text{1-itemsets} & \text{2-itemsets} & \text{3-itemsets} \\
+\begin{array}{|c|c|}
+\hline
+\text{item} & \text{support} \\
+\hline
+\text{Bread} & 4 \\
+\color{gray}{\text{Coke}} & \color{gray}{2} \\
+\text{Milk} & 4 \\
+\text{Beer} & 3 \\
+\text{Diaper} & 4 \\
+\color{gray}{\text{Eggs}} & \color{gray}{1} \\
+\hline
+\end{array} &
+\begin{array}{|c|c|}
+\hline
+\text{item} & \text{support} \\
+\hline
+\text{Bread, Milk} & 3 \\
+\color{gray}{\text{Bread, Beer}} & \color{gray}{2} \\
+\text{Bread, Diaper} & 3 \\
+\color{gray}{\text{Milk, Beer}} & \color{gray}{2} \\
+\text{Milk, Diaper} & 3 \\
+\text{Beer, Diaper} & 3 \\
+\hline
+\end{array} &
+\begin{array}{|c|c|}
+\hline
+\text{item} & \text{support} \\
+\hline
+\text{Bread, Milk, Diaper} & 3 \\
+\text{Bread, Diaper, Beer} & 3 \\
+\text{Milk, Diaper, Beer} & 3 \\
+\hline
+\end{array}
+\end{array}
+$$
+
+Specifically, the algorithm is described as follows:
+
+$$
+\mathbf{\text{Apriori Algorithm}} \\
+\begin{array}{l}
+\hline
+\text{Let k = 1} \\
+\mathbf{\text{Repeat}} \\
+\qquad \text{Generate frequent itemsets of size k} \\
+\qquad \text{Generate candidate itemsets of size k+1} \\
+\qquad \text{Prune candidate itemsets that contain infrequent itemsets} \\
+\qquad \text{Count the support of remained candidate itemsets by scanning the transaction database} \\
+\qquad \text{Eliminate candidate itemsets that do not meet the minimum support threshold} \\
+\qquad \text{Increment k} \\
+\mathbf{\text{Until}} \text{ no frequent itemsets are generated}
+\end{array}
+$$
+
+A task that scans the transaction database and counts the support of candidate itemsets is also be reduced by using the **Hash Tree** data structure. A simple hash function $\text{hash}(\text{item}) = \text{item} \mod n$ where $n$ is the number of possible child branches is used to construct a hash tree. Each candidate itemset is hashed to the corresponding node in the hash tree as the order and hash value of items in the itemset reflects the depth and branch of the tree. If the leaf node exceeded the predefined max-leaf-size, the leaf node is split again with the same hash function and the next item in the itemset is hashed to determine where the itemset is placed between branches. Specifically, with the following hash function $\text{hash}(\text{item}) = \text{item} \mod 3$,
+
+```mermaid
+graph TD
+    Root[" "]
+    Branch1[" "]
+    Branch2[" "]
+    Branch3[" "]
+    Root --> |1,4,7 | Branch1
+    Root --> |2,5,8 | Branch2
+    Root --> |3,6,9 | Branch3
+```
+
+a hash tree is constructed with candidate itemsets.
+
+![Hash Tree](./assets/hash_tree_in_apriori_algorithm.jpg)
+
+The hash tree significantly reduces the number of comparisons between candidate itemsets and a transaction from database, as reducing the number of candidate itemsets.
+
+After constructing the hash tree, to compare a transaction with candidate itemsets in the hash tree, a subset operation is applied to the transaction, creating subsets in each level of the hash tree. Likewise while generating the hash tree, each subset follows the branch of the hash tree by the hash function with its order. Each level fixes an item in the subset for each node, and all children of the node are assumed that they contain the parent's fixed item. If the subset reaches the leaf node, the subset is compared with the itemsets in the node.
+
+Taking a transaction {1,2,3,5,6} as an example, the number of comparisons is reduced to 11 among 15 candidate itemsets as shown in the following figure.
+
+![Hash Tree Comparison](./assets/hash_tree_comparison_in_apriori_algorithm.jpg)
+
+$\quad$ Besides, factors that affect the complexity of the frequent itemset generation are **1. Minimum support threshold**, **2. Dimensionality of data**, **3. Size of database**, and **4. Average transaction width**.
+
+**2) Rule Generation** \
+$\quad$ The second step is to find high confidence rules from each frequent itemset where each rule is bi-partitioned from the frequent itemset. Although confidence does not follow the Apriori principle, **Lattice of rules** enables to prune the search space of rules from a rule which has low confidence. Specifically, a confidence value calculated from the same itemset has an anti-monotone property. For example, if an itemset {A, B, C} is given, rules that can be derived from the itemset 1: {A, B, C} $\to$ {D}, 2: {A, B} $\to$ {C, D}, 3: {A} $\to$ {B, C, D} meet the following inequation;
+
+$$
+\text{Confidence}(A, B, C \to D) \geq \text{Confidence}(A, B \to C, D) \geq \text{Confidence}(A \to B, C, D)
+$$
+
+The more items in if-part of the rule, the less confidence the rule has. The following figure shows pruning the search space of rules using the lattice of rules.
+
+![Lattice of Rules](./assets/lattice_of_rules_in_apriori_algorithm.jpg)
+
 
 
 
