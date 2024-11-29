@@ -1,0 +1,101 @@
+from jax import Array
+
+import jax
+import jax.numpy as jnp
+
+
+class KMeans:
+    def __init__(self, key, n_clusters=3, max_iter=0) -> None:
+        """
+        Initialize the KMeans class.
+
+        Parameters
+        ----------
+        key: jax.random.KeyArray - The key for reproducibility
+        n_clusters: int - The number of clusters
+        max_iter: int - The maximum number of iterations
+        """
+        assert n_clusters > 0, "The number of clusters must be larger than 0"
+
+        self.__key = key
+        self.__n_clusters: int = n_clusters
+        self.__max_iter: int = max_iter
+
+        self.__centroids: Array = jnp.array([])
+        self.__labels: Array = jnp.array([])
+        self.__X: Array = jnp.array([])
+        self.__SSE: float = float("inf")
+
+    def __compute_distances(self, X):
+        centroids = self.__centroids
+        distances = jnp.sum((X[:, None, :] - centroids[None, :, :]) ** 2, axis=2)
+        return distances
+
+    def __assign_clusters(self, distances):
+        return jnp.argmin(distances, axis=1)
+
+    def __compute_new_centroids(self, X, labels, k):
+        centroids_sum = jax.ops.segment_sum(X, labels, num_segments=k)
+        counts = jnp.bincount(labels, minlength=k).reshape(-1, 1)
+        counts = jnp.where(counts == 0, 1, counts)
+        centroids = centroids_sum / counts
+        return centroids
+
+    def __compute_sse(self):
+        X, centroids, labels = self.__X, self.__centroids, self.__labels
+
+        assigned_centroids = centroids[labels]
+        errors = X - assigned_centroids
+        squared_errors = jnp.sum(errors**2, axis=1)
+        sse = jnp.sum(squared_errors)
+        return sse
+
+    def __weighted_choice(self, key, a, p):
+        cumulative_probs = jnp.cumsum(p)
+        r = jax.random.uniform(key, ()) * cumulative_probs[-1]
+        idx = jnp.searchsorted(cumulative_probs, r, side="right")
+        return a[idx]
+
+    def __init_centroids_kmeans_plusplus(self):
+        key, X, k = self.__key, self.__X, self.__n_clusters
+
+        n_samples = X.shape[0]
+        keys = jax.random.split(key, k)
+
+        # Choose the first centroid randomly
+        idx = jax.random.randint(keys[0], (), 0, n_samples)
+        centroids = [X[idx]]
+
+        for i in range(1, k):
+            # Compute distances from data points to the nearest centroid
+            distances = jnp.min(
+                jnp.stack([jnp.sum((X - c) ** 2, axis=1) for c in centroids], axis=1),
+                axis=1,
+            )
+            # Compute probabilities proportional to squared distances
+            total_distance = jnp.sum(distances)
+            probabilities = distances / total_distance
+
+            # Sample next centroid with the computed probabilities
+            idx = self.__weighted_choice(keys[i], jnp.arange(n_samples), probabilities)
+            centroids.append(X[idx])
+
+        return jnp.array(centroids)
+
+    def fit(self, X, num_iters=100):
+        self.__X = X
+        self.__centroids = self.__init_centroids_kmeans_plusplus()
+        sse_history = []
+
+        for i in range(num_iters):
+            distances = self.__compute_distances(X)
+            labels = self.__assign_clusters(distances)
+            new_centroids = self.__compute_new_centroids(X, labels, k)
+
+            # Check for convergence
+            if jnp.allclose(self.__centroids, new_centroids, atol=1e-6):
+                break
+            self.__centroids = new_centroids
+
+        sse_history = jnp.array(sse_history)
+        return self.__centroids, self.__labels, sse_history
