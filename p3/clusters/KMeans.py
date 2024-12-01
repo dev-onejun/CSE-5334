@@ -4,29 +4,32 @@ import jax
 import jax.numpy as jnp
 from jax import jit
 
+from .distance import _euclidean_distances
 
-def _euclidean_distances(A, B) -> Array:
+
+@jit
+def _weighted_choice(key, a, p):
     """
-    Compute the Euclidean distances between two sets of points.
+    Choose a random element from a with the probabilities p.
 
     Parameters
     ----------
-    A: jnp.ndarray - The first set of points
-    B: jnp.ndarray - The second set of points
+    key: jax.random.KeyArray - The key for reproducibility
+    a: jnp.ndarray - The array of elements
+    p: jnp.ndarray - The array of probabilities
 
     Returns
     -------
-    distances: jnp.ndarray - The Euclidean distances between two sets of points
+    a[idx]: jnp.ndarray - The random element from a with the probabilities p
     """
-    distances = jnp.sqrt(
-        jnp.sum(
-            (A[:, None, :] - B[None, :, :]) ** 2,
-            axis=2,
-        )
-    )
-    return distances
+    cumulative_probs = jnp.cumsum(p)
+    r = jax.random.uniform(key, ()) * cumulative_probs[-1]
+    idx = jnp.searchsorted(cumulative_probs, r, side="right")
+
+    return a[idx]
 
 
+@jit
 def _assign_clusters(distances) -> Array:
     """
     Assign each data point to the nearest centroid.
@@ -42,6 +45,7 @@ def _assign_clusters(distances) -> Array:
     return jnp.argmin(distances, axis=1)
 
 
+@jit
 def _compute_SSE(X, centroids, labels) -> Array:
     """
     Compute the sum of squared errors (SSE) of the current KMeans model.
@@ -55,11 +59,6 @@ def _compute_SSE(X, centroids, labels) -> Array:
     squared_errors = jnp.sum(errors**2, axis=1)
 
     return jnp.sum(squared_errors)
-
-
-_jit_euclidean_distances = jit(_euclidean_distances)
-_jit_assign_clusters = jit(_assign_clusters)
-_jit_compute_SSE = jit(_compute_SSE)
 
 
 class KMeans:
@@ -83,26 +82,6 @@ class KMeans:
         self.__labels: Array = jnp.array([])
         self.__X: Array = jnp.array([])
         self.__SSE: Array = jnp.array([])
-
-    def __weighted_choice(self, key, a, p):
-        """
-        Choose a random element from a with the probabilities p.
-
-        Parameters
-        ----------
-        key: jax.random.KeyArray - The key for reproducibility
-        a: jnp.ndarray - The array of elements
-        p: jnp.ndarray - The array of probabilities
-
-        Returns
-        -------
-        a[idx]: jnp.ndarray - The random element from a with the probabilities p
-        """
-        cumulative_probs = jnp.cumsum(p)
-        r = jax.random.uniform(key, ()) * cumulative_probs[-1]
-        idx = jnp.searchsorted(cumulative_probs, r, side="right")
-
-        return a[idx]
 
     def __init_centroids(self) -> Array:
         """
@@ -128,7 +107,7 @@ class KMeans:
             total_distance = jnp.sum(distances)
             probabilities = distances / total_distance
 
-            idx = self.__weighted_choice(keys[i], jnp.arange(n_samples), probabilities)
+            idx = _weighted_choice(keys[i], jnp.arange(n_samples), probabilities)
             centroids.append(X[idx])
 
         return jnp.array(centroids)
@@ -148,7 +127,7 @@ class KMeans:
 
         return distances
         """
-        return _jit_euclidean_distances(self.__X, self.__centroids)
+        return _euclidean_distances(self.__X, self.__centroids)
 
     def __compute_new_centroids(self) -> Array:
         """
@@ -187,7 +166,7 @@ class KMeans:
             iter_num = i
 
             distances = self.__compute_distances()
-            self.__labels = _jit_assign_clusters(distances)
+            self.__labels = _assign_clusters(distances)
             new_centroids: Array = self.__compute_new_centroids()
 
             if jnp.allclose(self.__centroids, new_centroids, atol=1e-6):
@@ -204,6 +183,6 @@ class KMeans:
         -------
         float - The sum of squared errors (SSE) of the KMeans model
         """
-        self.__SSE = _jit_compute_SSE(self.__X, self.__centroids, self.__labels)
+        self.__SSE = _compute_SSE(self.__X, self.__centroids, self.__labels)
 
         return self.__SSE

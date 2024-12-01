@@ -6,7 +6,9 @@ from jax._src.random import KeyArray
 
 import pandas as pd
 import numpy as np
+
 import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram
 
 
 def set_seed(seed: int = 42) -> KeyArray:
@@ -54,7 +56,14 @@ def load_data(path: str = "wine.csv") -> tuple[jnp.ndarray, jnp.ndarray]:
     return X, y
 
 
-def make_plot(history: list):
+def plot_SSE(history: list):
+    """
+    Plot the SSE with respect to the K values
+
+    Parameters
+    ----------
+    history: list - The history of SSE values with respect to K values
+    """
     k = [k for k, _ in history]
     sse_history = [sse for _, sse in history]
 
@@ -69,5 +78,24 @@ def make_plot(history: list):
     plt.title("SSE with K values")
     plt.xlabel("K")
     plt.ylabel("SSE")
+
+    plt.show()
+
+
+def plot_dendrogram(linkage: np.ndarray):
+    """
+    Plot the dendrogram for the given linkage matrix
+
+    Parameters
+    ----------
+    linkage: list - The linkage matrix
+    """
+    plt.figure(figsize=(10, 7))
+
+    dendrogram(linkage)
+
+    plt.title("Dendrogram")
+    plt.xlabel("Index")
+    plt.ylabel("Distance")
 
     plt.show()
