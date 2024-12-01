@@ -120,13 +120,6 @@ class KMeans:
         -------
         distances: jnp.ndarray - The Euclidean distances between the data points and the centroids
         """
-        """
-        X, centroids = self.__X, self.__centroids
-
-        distances = jnp.sum((X[:, None, :] - centroids[None, :, :]) ** 2, axis=2)
-
-        return distances
-        """
         return _euclidean_distances(self.__X, self.__centroids)
 
     def __compute_new_centroids(self) -> Array:

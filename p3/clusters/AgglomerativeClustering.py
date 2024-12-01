@@ -51,7 +51,7 @@ class AgglomerativeClustering:
             # Find the pair of clusters
             i, j = np.unravel_index(np.argmin(distance_active), distance_active.shape)
             idx_i, idx_j = active_indices[i], active_indices[j]
-            if idx_j > idx_j:
+            if idx_i > idx_j:
                 idx_i, idx_j = idx_j, idx_i
 
             # Merge Clusters

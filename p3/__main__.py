@@ -47,23 +47,23 @@ def main():
     """
     Task 1: KMeans Clustering
     """
-    # SSE_history = []
-    # for K in range(2, 9):
-    # SSE = train_kmeans(X, K)
-    # SSE_history.append((K, SSE))
+    SSE_history = []
+    for K in range(2, 9):
+        SSE = train_kmeans(X, K)
+        SSE_history.append((K, SSE))
 
-    # plot_SSE(SSE_history)
+    plot_SSE(SSE_history)
 
     """
     Task 2: Agglomerative Hierarchical Clustering
     """
-    # linkage, sihouette_score = train_agglomerative(X, "single")
-    # plot_dendrogram(linkage)
-    # print(f"Silhouette Score: {sihouette_score}")
-
-    linkage, sihouette_score = train_agglomerative(X, "complete")
+    linkage, silhouette_score = train_agglomerative(X, "single")
     plot_dendrogram(linkage)
-    print(f"Silhouette Score: {sihouette_score}")
+    print(f"Silhouette Score: {silhouette_score}")
+
+    linkage, silhouette_score = train_agglomerative(X, "complete")
+    plot_dendrogram(linkage)
+    print(f"Silhouette Score: {silhouette_score}")
 
 
 if __name__ == "__main__":
