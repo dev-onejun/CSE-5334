@@ -1,5 +1,6 @@
 ---
 usemathjax: true
+usemermaid: true
 ---
 
 # A Gap Between Intuitive and Data: A Review of Data Mining
@@ -60,15 +61,13 @@ In order to address each language in IR, the common definition of terminologies 
 
 In summary, **1)** *word* is a string in a text, **2)** *token* is derived from *word* after tokenization processes which have their own pros and cons, **3)** *type* and *term* are referred to a list grouped the *token*s through the process of normalization under rules such as spelling or morphology. Hence, *Normalization* and *tokenization* are entailed.
 
-**Normalization**
-
-*Normalization* is a step for general cleanup of text, such as removing needless whitespace, lowercasing, and/or removing accenets [[2](#mjx-eqn-2)]. It is important that the *Normalization* step is conducted in IR systems, since users who used a IR system do not consider what they query to the system. For example, U.S.A and USA are different, but the IR system should match those words. Cases like Microsoft Windows and microsoft windows are another example. Typically, IR systems tackle these as removing dots and making all characters lower case. However, words like W.H.O and C.A.T (test) cause an error from the solution since they group with the word 'who' and 'cat' which have totally different meaning. The case of 'Windows' and 'windows' is another error of the solution. These problems lead the IR system to retrieve false positives in its result. Therefore, *Normalization* is crucial since the more IR system normalize *token*s with strict policies, the more its result become inefficient with the result equivalence classes become smaller as well as the less IR system normalize *token*s with loose policies, the less its result become inappropriate too with the number of equivalence classes become bigger.
+**Normalization** \
+*Normalization* is a step for general cleanup of text, such as removing needless whitespace, lowercasing, and/or removing accents [[2](#mjx-eqn-2)]. It is important that the *Normalization* step is conducted in IR systems, since users who used a IR system do not consider what they query to the system. For example, U.S.A and USA are different, but the IR system should match those words. Cases like Microsoft Windows and microsoft windows are another example. Typically, IR systems tackle these as removing dots and making all characters lower case. However, words like W.H.O and C.A.T (test) cause an error from the solution since they group with the word 'who' and 'cat' which have totally different meaning. The case of 'Windows' and 'windows' is another error of the solution. These problems lead the IR system to retrieve false positives in its result. Therefore, *Normalization* is crucial since the more IR system normalize *token*s with strict policies, the more its result become inefficient with the result equivalence classes become smaller as well as the less IR system normalize *token*s with loose policies, the less its result become inappropriate too with the number of equivalence classes become bigger.
 
 The process that makes all characters become lowercase is called *Case Folding*. This is the popular preprocessing methods due to the fact that many users do not care about correct capitalization when they query to IR systems. For your information, however, in a few word, capital characters which include crucial meaning are so useful that many deep learning models consider the correct capitalization for their tokens.
 
-**Tokenization**
-
-*Tokenization* indexes the the word in sentence [[2](#mjx-eqn-2)], splitting into what the algorithm of the tokenizer designs. The result become vary depending on what types of tokenizers are used. Each tokenizer adopts different methods to compose their *token*s. For example, in 'Hewlett-Packard', a tokenizer can remove the hypoon, making two seperate tokens. On the other hand, these two seperate words could be interpreted as different meaning such as directing two people, Hwelett and Packard, so that which does IR system use for tokeniers is crucial for its performance. All tokenizers have their own benefits and drawbacks.
+**Tokenization** \
+*Tokenization* indexes the the word in sentence [[2](#mjx-eqn-2)], splitting into what the algorithm of the tokenizer designs. The result become vary depending on what types of tokenizers are used. For example, in 'Hewlett-Packard', a tokenizer can remove the hypoon, making two seperate tokens. On the other hand, these two seperate words could be interpreted as different meaning such as directing two people, Hwelett and Packard, so that which does IR system use for tokeniers is crucial for its performance. Each tokenizer adopts different methods to compose their *token*s so that all tokenizers have their own benefits and drawbacks.
 
 The string of numbers is another problem in IR systems. If a string 03201991 is given, what should we determine the type of the string? The string could be a date, March 20th 1991, or a phone number, (032)-019-991. Due to this problem, oldschool IR systems did not utilize the number strings. Yet, Google or recent IR systems process these numbers in their own ways to find relevant matches. (In programming assignment, in order to make the problem simple, we will not use index numbers. Just skip those numerical values.)
 
@@ -102,7 +101,7 @@ Google, the latest and most advanced search engine, has utilized *stopwords*, *n
 The question may arise at this point. "How could we match the query of the user to give results?" If the IR system only took boolean search, this question becomes simple. However, there are two problems: **1)** The most queries from users are not the type of the question answered as yes or no. **2)** Boolean queries often result in either too few (almost zero) or too many (1000s) results. What the IR system needs is the top 10 results which users can focus on their answers.
 
 <!-- 1) and 2) seems to be the same goal. need to check and fix it -->
-**Ranked retrieval** gives score based on the similiarity between queries and documents. The score is normally in range 0 to 1. The goal of **Ranked retrieval** is that **1)** the more frequent a query term in the document, the higher score the document get and **2)** the more query terms occur in the document, the higher score the document get. In addition, **3)** the length of the document should be considered in both rules. These three elements derive a conflict so that various algorithms are selected in each optimal situation;
+**Ranked retrieval** gives a score based on the similiarity between queries and documents. The score is normally in range 0 to 1. The goal of **Ranked retrieval** is that **1)** the more frequent a query term in the document, the higher score the document get and **2)** the more query terms occur in the document, the higher score the document get. In addition, **3)** the length of the document should be considered in both rules. These three elements derive a conflict so that various algorithms are selected in each optimal situation;
 
 **Jaccard coefficient** is a common value to measure the overlap of two sets. Let $A$ and $B$ are two different sets,
 
@@ -155,7 +154,7 @@ $$
 
 For the top of the paper (class), only **bag of words** models are utilized. **Bag of words** refers to, without considering the order in which they appear, the representation of text which describes the presence of words within the text data.
 
-**Term Frequency** $\text{tf}_{t,d}$ is the number of times that the term $t$ appears in the document $d$. However, the $\text{tf}$ alone itself is not enough to understand the importance of the term in the document. For instance, $\text{tf}_{t_1, d} = 10$ does not mean that the $t_1$ is 10 times more important than $t_2$ where $\text{tf}_{t_2, d} = 1$. To solve this problem, **Log Frequency Weighting** was proposed. The log frequency weight $w_{t,d}$ is defined as follows:
+**Term Frequency**, $\text{tf}_{t,d}$, is the number of times that the term $t$ appears in the document $d$. However, the $\text{tf}$ alone itself is not enough to understand the importance of the term in the document. For instance, $\text{tf}_{t_1, d} = 10$ does not mean that the $t_1$ is 10 times more important than $t_2$ where $\text{tf}_{t_2, d} = 1$. To solve this problem, **Log Frequency Weighting** was proposed. The log frequency weight $w_{t,d}$ is defined as follows:
 
 $$
 \begin{array}{c|cc}
@@ -277,9 +276,9 @@ A lot of data mining software are summarized in the lecture note page 19.
 
 **Data** is the raw material, a collection of facts, figures, and statistics that can be processed to produce information. In structed data, data is a collection of objects and their attributes. An object is a row of a table in structed data, and an attribute is a column of a table, a property or characteristic of an object.
 
-Attributes can be different types, such as numbers, text, dates, etc. For example, in a table of students, the attributes would have attributes like studnet ID as a number, student name as text. Same values in different attributes normally have different meanings. Take student ID and age as an example. A student who is 20 years old can get a student ID of 20, but the two 20s have different meanings. A same attribute can also have different values. Height is measured as feet and inches, resulting in two values for the same attribute.
+Attributes can be different types, such as numbers, text, dates, etc. For example, in a table of students, the attributes would have attributes like student ID as a number, student name as text. Same values in different attributes normally have different meanings. Take student ID and age as an example. A student who is 20 years old can get a student ID of 20, but the two 20s have different meanings. A same attribute can also have different values. Height is measured as feet and inches, resulting in two values for the same attribute.
 
-By the measurement scale, attributes are classified into four types: nominal, ordinal, interval, and ratio. These attributes hierarchically have different properties; nominal $\subset$ ordinal $\subset$ interval $\subset$ ratio. **1) Nominal attributes** refers to the type of attributes that have *distinctness* properties, compared by $=, \not=$. For example, eye color is a nominal attribute as well as student ID is a nominal attribute in terms of it is unique to each student. **2) Ordinal attributes** have *order* properties, represented as <, >. Rankings, such as student grade, satisfaction level, and height are ordinal attributes. **3) Interval attributes** have the *difference (addition)* property, written as $+, -$, which differences between values are meaningful. For instance, temperature in Celsius or Fahrenheit is an interval attribute and dates on calendar are interval attributes. **4) Ratio attributes** have the properties of nominal, ordinal, and interval attributes as well as *multiplication and division ($\times$, $\div$)* are meaningful. For example, temperature in Kelvin is a ratio attribute, and height is a ratio attribute.
+By the measurement scale, attributes are classified into four types: nominal, ordinal, interval, and ratio. These attributes hierarchically have different properties; nominal $\subset$ ordinal $\subset$ interval $\subset$ ratio. **1) Nominal attributes** refers to the type of attributes that have *distinctness* properties, compared by $=, \not=$. For example, eye color is a nominal attribute as well as student ID is a nominal attribute in terms of it is unique to each student. **2) Ordinal attributes** have *order* properties, represented as <, >. Rankings, such as student grade, satisfaction level, and height are ordinal attributes. **3) Interval attributes** have the *difference (addition)* property, written as $+, -$, which differences between values are meaningful. For instance, temperature in Celsius or Fahrenheit is an interval attribute and dates on calendar are interval attributes. **4) Ratio attributes** have the properties of nominal, ordinal, and interval attributes as well as *multiplication and division ($\times$, $\div$)* are meaningful. For example, temperature in Kelvin is a ratio attribute.
 
 For more details of the temperature, Kelvin starts at absolute zero, causing the ratio between two Kelvin values to be meaningful. 300$K$ is twice as hot as 150$K$. However, Celsius and Fahrenheit do not have an absolute zero, so the ratio between two Celsius or Fahrenheit values is not meaningful. 40$^{\circ}C$ is not twice as hot as 20$^{\circ}C$ as well as Fahrenheit.
 
@@ -343,7 +342,7 @@ $$
 \text{dist} = \left( \sum_{i=1}^{n} |p_i - q_i|^r \right)^{1/r} \begin{cases} r = 1, & \text{Manhattan distance, L1 norm} \\ r = 2, & \text{Euclidean distance, L2 norm} \\ r = \infty, & \text{Supremum (Chebyshev) distance, L}_\text{max}\text{ norm, L}_\infty\text{ norm} \end{cases}
 $$
 
-where $r$ is the dimension of the distance and $n$ is the number of attributes. In most cases, since the scale of each attribute is different, the standardization is necessary. The standardization is processed by subttracting the mean and dividing by the standard deviation or by scaling the values to [0, 1] by the formula $\frac{ \text{target}_{d} - \text{min}_{d_i} }{ \text{max}_{d_i} - \text{min}_{d_i} }$
+where $r$ is the dimension of the distance and $n$ is the number of attributes. In most cases, since the scale of each attribute is different, the standardization is necessary. The standardization is processed by subttracting the mean and dividing by the standard deviation or by scaling the values to [0, 1] by the formula $\frac{\text{target}_{d} - \text{min}_{d_i}}{\text{max}_{d_i} - \text{min}_{d_i}}$
 
 For Supremum distance $L_\text{max}$ or $L_\infty$ norm, the distance converges to the maximum difference among attributes from the two vectors.
 
@@ -380,7 +379,7 @@ $$
 
 where $\bar{p}$ and $\bar{q}$ are the means of the vectors $p$ and $q$, $\frac{1}{n} \sum_{i=1}^{n} p_i$ and $\frac{1}{n} \sum_{i=1}^{n} q_i$.
 
-When it comes to the need of an overall similarity among different types of attributes, \
+When it comes to the need of an overall similarity (a similarity between two objects which have several types of attributes) among different types of attributes, \
 $\quad\text{1.}$ Define an indicator variable $\sigma_k$ for the k-th attribute as follows:
 
 $$
@@ -412,7 +411,7 @@ Supervised Learning refers to when the model is trained on a labeled training da
 
 **Decision Tree** is a tree-like graph of decisions and their possible consequences. Specifically, splitting attributes make a decision yes or no, classifying data. Both binary and multi-way decision tree are available on one's preference. However, if data has conflicting attributes, decision tree can not solve the problem. Large search space is another limitation of decision tree, making the optimal decision tree computationally infeasible.
 
-When it comes to a single dataset, many different decision trees are possible. Despite a variety of decision trees, the problem to find the optimal decision tree is NP-complete which no efficient solution algorithm has been found. Algorithms based on greedy algorithm have been proposed to construct the decision tree, making locally optimal decisions in selecting the best attribute to split the data.
+With a single dataset, many different decision trees are possible. Despite a variety of decision trees, the problem to find the optimal decision tree is NP-complete which no efficient solution algorithm has been found. Algorithms based on greedy algorithm have been proposed to construct the decision tree, making locally optimal decisions in selecting the best attribute to split the data.
 
 Among a few algorithms like Hunt's Algorithm, CART, ID3, C4.5, SLIQ, and SPRINT, the paper reviewed Hunt's Algorithm, a one of the earliest decision tree algorithms and the foundation of other decision tree algorithms.
 
@@ -432,12 +431,13 @@ Recursive:
         - If true, mark the node as a leaf node. END the branch.
         - If not, continue to the next step.
     4. Split the node into child nodes based on the attribute.
-        - During the split, the algorithm calculates the impurity of the child nodes using the 1) Gini index, 2) entropy, or 3) misclassification error.
+        - During the split, the algorithm calculates the impurity of the child nodes
+            using the 1) Gini index, 2) entropy, or 3) misclassification error.
         - After splitting, the Gain is recalculated to renew the tree state.
 
 Terminate:
     1. If all nodes become leaf nodes during the recursive process.
-    2. If the split does not show certain improvement set beforehand threshold, regarding the impurity
+    2. If the split does not show certain improvement than beforehanded-set threshold, regarding the impurity
         - When it comes to the large number of data, the accuracy would not be improved significantly even after the split.
         - For example, if 100,000,000 data were input, in a certain point such as a 1,000 impurity node, the split would not impact to the accuracy of the whole tree even if the half of the data were wrong.
         - This also leads the tree to be overfitted.
@@ -445,7 +445,7 @@ Terminate:
 
 Regarding the split, two questions are raised. **1)** How to split with different types of attributes? **2)** How to determine the best split?
 
-The first question is answered by the type of attributes. Nominal and Ordinal attributes are treated as categorical attributes. For example, if the attribute is color, the node is split into red, blue, and green or if the attribute is size, the node is split into small, medium, and large. In this case, if categories are grouped into two, this is called 2-way split. If categories are grouped into three or more, this is called multi-way split. Interval and Ratio attributes are treated as numeric attributes. For example, if the attribute is age, the node is split into age < 20, 20 <= age < 40, 40 <= age < 60, and age >= 60. Aslike the categorical attributes, if the numeric attributes are grouped into two, this is called binary split. If the numeric attributes are grouped into three or more, this is called multi-split.
+The first question is answered by the type of attributes. Nominal and Ordinal attributes are treated as categorical attributes. For example, if the attribute is color, the node is splitted into red, blue, and green or if the attribute is size, the node is split into small, medium, and large. In this case, if categories are grouped into two, this is called 2-way split. If categories are grouped into three or more, this is called multi-way split. Interval and Ratio attributes are treated as numeric attributes. For example, if the attribute is age, the node is split into age < 20, 20 <= age < 40, 40 <= age < 60, and age >= 60. Aslike the categorical attributes, if the numeric attributes are grouped into two, this is called binary split. If the numeric attributes are grouped into three or more, this is called multi-split.
 
 To determine whether 2-way or multi-way split is needed, the algorithm calculates **Gain** with the following metrics for each possible children node. Especially for the continuous attributes, the algorithm converts the continuous values into discrete values the threshold usually the mean or median because it is inefficient that the algorithm calculates the metrics for all possible threshold values. (In the class, only 2-way split will be used.)
 
@@ -471,12 +471,13 @@ $$
 \right.
 $$
 
-Two properties, regarding min-max and the ratio of the classes, are notable. **1)** The loweset value of Gini index is 0, when the node is pure. The highest value of Gini index is 0.5 for the number of classes is 2 and 0.67 for 3 classes when the node is equally distributed. In general, when the number of classes is $n_c$, $Gini = \left\{ \begin{aligned} & \text{minimum} = 0 \\ & \text{maximum} = 1 - \frac{1}{n_c} \end{aligned} \right.$ **2)** If the ratio of the classes are same between different nodes, the Gini value is same regardless of the number of datas. These properties lead the intuition to estimate the value of the Gini index before calculating it. For example, if a node is close to a 1:1 ratio of two classes, the Gini index is close to 0.5.
+Two properties, regarding min-max and the ratio of the classes, are notable. **1)** The loweset value of Gini index is 0, when the node is pure. The highest value of Gini index is 0.5 for the number of classes is 2 and 0.67 for 3 classes when the node is equally distributed. In general, when the number of classes is $c$, $\text{Gini} = \begin{cases} \text{Minimum} = 0 \\ \text{Maximum} = 1 - \frac{1}{c} \end{cases}$ **2)** If the ratio of the classes are same between different nodes, the Gini value is same regardless of the number of datas. These properties lead the intuition to estimate the value of the Gini index before calculating it. For example, if a node is close to a 1:1 ratio of two classes, the Gini index is close to 0.5.
+
 
 The Gain of the Gini index is calculated by subtracting the weighted average of the child nodes' impurity from the parent node's impurity. The formula for calculating the Gain is:
 
 $$
-\text{Gain} = \text{Gini(parent)} - \sum_{\text{child} \in \text{children}} \frac{\text{the number of data in the child}}{\text{the number of data in the parent}} \times Gini(child)
+\text{Gain} = \text{Gini(parent)} - \sum_{\text{child} \in \text{children}} \frac{\text{the number of data in the child}}{\text{the number of data in the parent}} \times \text{Gini(child)}
 $$
 
 Although the Gini index improves the limitation of the misclassification error, it still shows the same limitation.
@@ -484,10 +485,10 @@ Although the Gini index improves the limitation of the misclassification error, 
 **3) Entropy** is the most useful metric to measure the impurity. The formula for calculating the entropy is:
 
 $$
-\text{Entropy(t)} = - \sum_{j} p_{(j \mid t)} \log_2 p_{(j \mid t)}
+\text{Entropy(t)} = - \sum_{i}^{c} p_i \log_2 p_i
 $$
 
-The minus sign is added to make the entropy value positive since the value of the log is always negative. The entropy value is 1 when the class ratio is equal and 0 when the class ratio is 0:N. The entropy value is the same regardless of the number of datas if the class ratio is the same. The maximum value of the entropy is $\log_2 N_c$, where $N_c$ is the number of classes, and the minimum value of the entropy is 0.
+The minus sign is added to make the entropy value positive since the value of the log is always negative. **The entropy value is 1 when the class ratio is equal as well as the entropy value is 0 when the class ratio is 0:N**. The entropy value is the same regardless of the number of datas if the class ratio is the same. The maximum value of the entropy is $\log_2 N_c$, where $N_c$ is the number of classes, and the minimum value of the entropy is 0.
 
 Gain Ratio, which determines the best split, is defined by Information Gain and Split Info. The definition of each is:
 
@@ -505,7 +506,7 @@ $$
 \end{aligned}
 $$
 
-In summary, Entropy mostly handles the limitation of the Gini index and the misclassification error. The following figure shows the comparison of the three metrics for a 2-class problem.
+In summary, Entropy mostly handles the limitation of the Gini index and the misclassification error. The following figure shows the comparison of the three metrics for a 2-class problem, where the Entropy represents the maximum impurity among metrics, concluding it as the best metrics.
 
 ![Comparison of GINI, Entropy, and Missclassification Error](https://www.researchgate.net/publication/339471092/figure/fig1/AS:862307349446657@1582601501720/Relation-among-Entropy-Gini-Index-and-Misclassification-error.ppm) \
 $\text{Fig. 2. Comparison of GINI, Entropy, and Missclassification Error}$ [[4](#mjx-eqn-4)]
@@ -525,7 +526,7 @@ $$
 \end{aligned}
 $$
 
-$\quad$ The Naive Bayes Classifier is a type of Bayesian Classifiers that strongly assumes that the attributes are conditionally independent. Specifically when attributes $A_i \text{i} \in N$ are given, the class label $C$ is estimated as
+$\quad$ The Naive Bayes Classifier is a type of Bayesian Classifiers that strongly assumes that the attributes are conditionally independent. Specifically when attributes $A_i \left( \text{i} \in N \right)$ are given, the class label $C$ is estimated as
 
 $$
 \begin{aligned}
@@ -569,7 +570,7 @@ $$
 & \qquad\qquad\qquad\qquad\qquad\qquad P(\text{Refund=Yes} \mid \text{Yes}) = 0 \\
 \\
 & \mathbf{\text{Continuous Attributes: }} P(A_i \mid C_k) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} \\
-& \qquad\qquad\qquad\qquad\qquad \text{e.g. } P(\text{Income=120} \mid \text{No}) = \frac{1}{\sqrt{2\pi (54.54)}}e^{-\frac{(120-110)^2}{2(2975)}} \\
+& \qquad\qquad\qquad\qquad\qquad \text{e.g. } P(\text{Income=120} \mid \text{No}) = \frac{1}{\sqrt{2\pi} (54.54)}e^{-\frac{(120-110)^2}{2(2975)}} \\
 & \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\quad = 0.0072
 \end{aligned}
 \end{array}
@@ -616,7 +617,7 @@ $$
 
 Between the probabilities of the two class labels, class `No` has a higher probability than class `Yes`. Therefore, the Naive Bayes Classifier classifies the new data $X$ as class `No`.
 
-$\quad$ However, Naive Bayes has a limitation that an attribute with a conditional probability of 0 makes the overall probability 0. To avoid this, Laplace smoothing and m-estimated were applied to the conditional probabilities. **1)** Laplace smoothing is a technique to add a small value to the probability of each attribute. It adds 1 to the numerator and the number of classes to the demoninator **2)** m-estimate is a generalization of Laplace smoothing.
+$\quad$ However, Naive Bayes has a limitation that a discrete attribute with a conditional probability of 0 makes the overall probability 0 (continuous attributes can not become 0). To avoid this, Laplace smoothing and m-estimated were applied to the conditional probabilities. **1)** Laplace smoothing is a technique to add a small value to the probability of each attribute. It adds 1 to the numerator and the number of classes to the demoninator **2)** m-estimate is a generalization of Laplace smoothing.
 
 $$
 \text{Original: } P(A_i \mid C) = \frac{\text{Number of instance having attribute } A_i}{\text{Number of Class } C_k} \to \begin{cases} \text{Laplace} & P(A_i \mid C) = \frac{\text{Number of instance having attribute } A_i + 1}{\text{Number of Class } C_k + N} \\ \text{m-estimate} & P(A_i \mid C) = \frac{\text{Number of instance having attribute } A_i + m \cdot P(A_i)}{\text{Number of Class } C_k + m} \end{cases} \\
@@ -644,10 +645,10 @@ $\quad$ The different scales among attributes and the limitation of Euclidean di
 $\quad$ PEBLS (Parallel Exemplar-Based Learning System) is a KNN algorithm that specifically designed for discrete (categorical) and nominal data. The algorithm employs a unique distance metric.
 
 $$
-\text{Distance}(V_1, V_2) = \sum_{i=1} \left| \frac{n_{1i}}{n_1} - \frac{n_{2i}}{n_2} \right|
+\text{Distance}(V_1, V_2) = \sum_{i \in C} \left| \frac{n_{1i}}{n_1} - \frac{n_{2i}}{n_2} \right|
 $$
 
-where $n_1, n_2$ are the number of instances in $V_1, V_2$ for all classes respectively, and $n_{1i}, n_{2i}$ are the number of instances in $V_1, V_2$ for class $i$ respectively. Taking the $\text{Table. #}$ as an example, the distances between nominal attribute values are
+where $n_1, n_2$ are the number of instances in $V_1, V_2$ for all classes respectively, and $n_{1i}, n_{2i}$ are the number of instances in $V_1, V_2$ for class $i$ respectively. Taking the $\text{Table}$ in *H. Naive Bayes Classifier* as an example, the distances between nominal attribute values are
 
 $$
 \begin{aligned}
@@ -749,7 +750,7 @@ $\quad$ **Underfitting** is a situation that both training and test errors are h
 
 Sometimes, overfitting occurs due to noise in data, lack of data (insufficient variety features of training data). The decision boundary of the model is distorted by noise and insufficient variety features of data makes wrong criterion to classify data. Like the paper reviewed in the Decision Tree section, the model is overfitted if the tree is splitted too much (e.g. fully-grown tree). Therefore, a training error alone is not a good indicator to evaluate the model.
 
-$\quad$ Oscam's Razor is a principle that a simpler model is better than a complex model if both models have the same performance in a certain problem. Based on the principle, a model is evaluated with the complexity of the model. **Minimum Description Length (MDL)** $L(M, D)$ is a quantitative measure to evaluate the complexity of the model, normally used in cost.
+$\quad$ Occam's Razor is a principle that a simpler model is better than a complex model if both models have the same performance in a certain problem. Based on the principle, a model is evaluated with the complexity of the model. **Minimum Description Length (MDL)** $L(M, D)$ is a quantitative measure to evaluate the complexity of the model, normally used in cost.
 
 $$
 L(M, D) = L(M) + L(D|M) \begin{cases} L(M) & \text{ is the length of the model} \\ L(D|M) & \text{ is the length of the data given the model} \end{cases}
@@ -761,20 +762,20 @@ $\quad$ **Pre-Pruning** is another method to prevent overfitting. As the paper a
 
 $\quad$ Finally, **Post-Pruning** is a method to prevent overfitting. With the decision tree example, after cutting the subtree in a certain depth, if the generalization error improves, the subtree is pruned as replacing the subtree with a leaf node. A class label of the leaf node is determined by the majority class of instances in the subtree. As a cost function, the MDL cost is available.
 
-With an assumption that the performance of the decision tree on unseen data will be slightly worse than on the training data, **1.** Pessimistic Pruning adds a small number of errors as a penalty (such as 0.5) to the training error. If the pessimistic error becomes bigger than before splitting, the branch of the tree is pruned, only remaining the parent node. For example, if a parent node has 20 and 10 instances of class A and B, respectively, and 4 child nodes have (8,4), (3,4), (4,1), (5,1) instances of class A and B, respectively, (assume that a penalty is 0.5 and the majority class is a correct label in each node)
+With an assumption that the performance of the decision tree on unseen data will be slightly worse than on the training data, **1. Pessimistic Pruning** adds a small number of errors as a penalty (such as 0.5) to the training error. If the pessimistic error becomes bigger than before splitting, the branch of the tree is pruned, only remaining the parent node. For example, if a parent node has 20 and 10 instances of class A and B, respectively, and 4 child nodes have (8,4), (3,4), (4,1), (5,1) instances of class A and B, respectively, (assume that a penalty is 0.5 and the majority class is a correct label in each node)
 
 $$
 \begin{aligned}
 \text{Training Error (before splitting)} & = \frac{10}{30} \\
-\text{Pessimistic Error (before splitting)} & = \frac{10 + (0.5 \times 1)}{30} \\
+\text{Pessimistic Error (before splitting)} & = \frac{10 + (0.5 \times 1)}{30} & = \frac{10.5}{30} \\
 \text{Training Error (after splitting)} & = \frac{4 + 3 + 1 + 1}{30} = \frac{9}{30} \\
-\text{Pessimistic Error (after splitting)} & = \frac{9 + (0.5 \times 4)}{30}
+\text{Pessimistic Error (after splitting)} & = \frac{9 + (0.5 \times 4)}{30} & = \frac{11}{30}
 \end{aligned}
 $$
 
 resulting in the pessimistic error after splitting is bigger than before splitting, so the branch is pruned.
 
-Adversarily, **2.** Optimistic Pruning assumes that the performance of the decision tree on unseen data will be same as on the training data, even becoming better when the tree is pruned its branch. The pruning expects good generalization by removing the branch. The algorithm prunes a branch if the optimistic error in child nodes is greater than the optimistic error in the parent node. (*For a tied case, TEST and EXAM make both pruning and not pruning correct. The professor said that whether the branch is trimmed or not is depended on a programmer*) Take the sampe example tree above as an example. For the error is decreased after splitting ($\frac{10}{30} \to \frac{9}{30}$), the branch should not be pruned.
+Adversarily, **2. Optimistic Pruning** assumes that the performance of the decision tree on unseen data will be same as on the training data, even becoming better when the tree is pruned its branch. The pruning expects good generalization by removing the branch. The algorithm prunes a branch if the optimistic error in child nodes is greater than the optimistic error in the parent node. (*For a tied case, TEST and EXAM make both pruning and not pruning correct. The professor said that whether the branch is trimmed or not is depended on a programmer*) Take the tree above as an example. For the error is decreased after splitting ($\frac{10}{30} \to \frac{9}{30}$), the branch should not be pruned.
 
 **3.** Reduced Error Pruning uses a validation set to prune the tree. Each subtree is tested on the validation set to see if removing the subtree improves the accuracy of the tree. If the accuracy is improved or unchanged, the subtree is pruned.
 
@@ -783,13 +784,13 @@ $\quad$ **Missing Values** affect the performance of the model. For example, the
 
 Specifically, the problems are handled as the following. **1.** Computing Impurity Measure: During computing the Entropy of each child node, the missing values are ignored and not counted. But when computing the whole Entropy of the children, the missing values are counted in a denominator (since it was included in the parent node) and not counted in a numerator (since it was ignored in the child node).
 
-**2.** Distribute Instances: Using a class label of the data with missing values, the instance is distributed to child nodes as probabilities. For example, if there was 7 True and 3 False in the parent node, the instance with missing values was True, and an attribute divided the data into (0 True, 3 False) and (2 True, 4 False), the instance is distributed to the child nodes as (0 + 3/9 True, 3 False) and (2 + 6/9 True, 4 False).
+**2.** Distribute Instances: Using a class label of the data with missing values, the instance is distributed to child nodes as probabilities. For example, if there was 3 True and 7 False in the parent node, the instance with missing values was True, and an attribute divided the data into (0 True, 3 False) and (2 True, 4 False), the instance is distributed to the child nodes as (0 + 3/9 True, 3 False) and (2 + 6/9 True, 4 False).
 
 **3.** Classify Instances: When it comes to testing an instance with missing values, the instance follows the bigger probability of the majority attribute value. For example, if a tree is trained the number of True instances 3.67 and False instances 6.33, the instance with missing values follows the False branch.
 
-**Data Fragmentation** occurs when the decision tree splits the dataset into smaller and smaller subsets as it grows deeper. As the paper already reviewed, this causes overfitting. In addition ot this, it leads to insufficient data for statistical significance. When it comes to analyzing the data, if the data becomees too fragmented, the number of predicted data at leaf nodes becomes too small to infer reliable patterns.
+$\quad$ **Data Fragmentation** occurs when the decision tree splits the dataset into smaller and smaller subsets as it grows deeper. As the paper already reviewed, this causes overfitting. In addition ot this, it leads to insufficient data for statistical significance. When it comes to analyzing the data, if the data becomees too fragmented, the number of predicted data at leaf nodes becomes too small to infer reliable patterns.
 
-**Search Strategy** arises since finding the optimal decision tree is NP-hard. Algorithms constructing decision trees have adopted a greedy search. The paper already reviewed about this. **Expressiveness** is another limitation of decision trees. The decision tree is not expressive enough to represent the complex relationship between features and class labels. Non-linear relationships are not well represented in the decision tree. **Tree Replication** is the other issue. A decision tree can be duplicated easily in the multiple branches to capture certain patterns in the data. In other words, same subtrees appears in different branches, which makes the tree redundant and complex.
+$\quad$ **Search Strategy** arises since finding the optimal decision tree is NP-hard. Algorithms constructing decision trees have adopted a greedy search. The paper already reviewed about this. **Expressiveness** is another limitation of decision trees. The decision tree is not expressive enough to represent the complex relationship between features and class labels. Non-linear relationships are not well represented in the decision tree. **Tree Replication** is the other issue. A decision tree can be duplicated easily in the multiple branches to capture certain patterns in the data. In other words, same subtrees appears in different branches, which makes the tree redundant and complex.
 
 **3) Model Evaluation** \
 $\quad$ In order to know how evaluate the model, **1. Metrics**, **2. Methods for performance evaluation**, and **3. Methods for model comparison** are needed.
@@ -888,7 +889,7 @@ $\quad$ On the other hand, how can models be compared whey they are tested on di
 A random variable $X$ is the number of correct predictions, following a binomial distribution expressed as $X \sim B(n, p)$, where $n$ is the number of samples and $p$ is the probability of success. The probability of success $p$ can be accuracy, f1-score, auc-roc, error rate, etc. With the binomial distribution, the confidence interval is derived for the large number of samples (normally more than 30 samples) using the normal distribution. The confidence interval is between the following formula (the formula will be given in the test);
 
 $$
-\text{Confidence Interval} = \frac{2 \times N \times p + Z_{\alpha/2}^2 \pm \sqrt{Z_{\alpha/2}^2 + 4 \times N \times p - 4 \times N \times p^2}}{2 \times (N + Z_{\alpha/2}^2)}
+\text{Confidence Interval} = \frac{2 \times n \times p + Z_{\alpha/2}^2 \pm \sqrt{Z_{\alpha/2}^2 + 4 \times n \times p - 4 \times n \times p^2}}{2 \times (n + Z_{\alpha/2}^2)}
 $$
 
 $Z_{\alpha/2}$ is the z-score value for the given confidence level $\alpha$. For example, $Z_{0.05/2} = 1.96$ for 95% confidence level. In the bell curve, roughly 68% of the data is within $1 \sigma$, 95% is within $2 \sigma$, and 99.7% is within $3 \sigma$. (the table of z-score will be also given in the test) The more the number of samples increases, the more the confidence interval narrows down.
@@ -950,7 +951,7 @@ $\quad$ Clusters, an output of the algorithm, can be different depending on the 
 This leads to the problem that the more the number of $K$ increases, the less the probability of selecting well-separated initial centroids becomes. Assuming that the numbers of data in clusters are same as $n$, the probability becomes
 
 $$
-P = \frac{\text{The number of ways to select one centroid from each cluster}}{\text{The number of ways to select} K \text{centroids from} n \text{points}} = \frac{k! n^k}{(kn)^k} = \frac{k!}{(k)^k}
+P = \frac{\text{The number of ways to select one centroid from each cluster}}{\text{The number of ways to select } K \text{ centroids from } n \text{ points}} = \frac{k! n^k}{(kn)^k} = \frac{k!}{(k)^k}
 $$
 
 which results in $0.00036$ when $k = 10$ for example.
@@ -968,7 +969,7 @@ $$
 \text{Initialize the list of clusters with a cluster containing all data points} \\
 \mathbf{\text{repeat}} \\
 \qquad \text{Select a cluster from the list of clusters with the highest SSE} \\
-\qquad \mathbf{\text{for}} \text{ i = 1 to number_of_iterations} \mathbf{\text{do}} \\
+\qquad \mathbf{\text{for}} \text{ i = 1 to number_of_iterations } \mathbf{\text{do}} \\
 \qquad \qquad \text{Run the K-means algorithm with K = 2 on the selected cluster} \\
 \qquad \mathbf{\text{end for}} \\
 \qquad \text{Add the two resulting clusters to the list of clusters} \\
