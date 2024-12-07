@@ -98,7 +98,7 @@ Google, the latest and most advanced search engine, has utilized *stopwords*, *n
 
 #### C. Ranked Retrieval
 
-The question may arise at this point. "How could we match the query of the user to give results?" If the IR system only took boolean search, this question becomes simple. However, there are two problems: **1)** The most queries from users are not the type of the question answered as yes or no. **2)** Boolean queries often result in either too few (almost zero) or too many (1000s) results. What the IR system needs is the top 10 results which users can focus on their answers.
+The question may arise at this point. "How could we match the query of the user to give results?" If the IR system only took boolean search, this question becomes simple. However, there are two problems: **1)** The most queries from users are not the type of the question answered as yes or no. **2)** These boolean queries often result in either too few (almost zero) or too many (1000s) results. What the IR system needs is the top 10 results which users can focus on their answers.
 
 <!-- 1) and 2) seems to be the same goal. need to check and fix it -->
 **Ranked retrieval** gives a score based on the similiarity between queries and documents. The score is normally in range 0 to 1. The goal of **Ranked retrieval** is that **1)** the more frequent a query term in the document, the higher score the document get and **2)** the more query terms occur in the document, the higher score the document get. In addition, **3)** the length of the document should be considered in both rules. These three elements derive a conflict so that various algorithms are selected in each optimal situation;
@@ -443,13 +443,13 @@ Terminate:
         - This also leads the tree to be overfitted.
 ```
 
-Regarding the split, two questions are raised. **1)** How to split with different types of attributes? **2)** How to determine the best split?
+Regarding the split, two questions are raised. **1)** How to split with different types of attributes? **2)** How to determine the best split (Which attribute should be chosen to split) ?
 
 The first question is answered by the type of attributes. Nominal and Ordinal attributes are treated as categorical attributes. For example, if the attribute is color, the node is splitted into red, blue, and green or if the attribute is size, the node is split into small, medium, and large. In this case, if categories are grouped into two, this is called 2-way split. If categories are grouped into three or more, this is called multi-way split. Interval and Ratio attributes are treated as numeric attributes. For example, if the attribute is age, the node is split into age < 20, 20 <= age < 40, 40 <= age < 60, and age >= 60. Aslike the categorical attributes, if the numeric attributes are grouped into two, this is called binary split. If the numeric attributes are grouped into three or more, this is called multi-split.
 
 To determine whether 2-way or multi-way split is needed, the algorithm calculates **Gain** with the following metrics for each possible children node. Especially for the continuous attributes, the algorithm converts the continuous values into discrete values the threshold usually the mean or median because it is inefficient that the algorithm calculates the metrics for all possible threshold values. (In the class, only 2-way split will be used.)
 
-The second question is dealt with the metrics to measure the impurity of the child nodes. Three evaluation metrics are used to measure the impurity of the child nodes. **1) Misclassification error** is the simplest metric to calculate the impurity of the splitted tree. The formula is:
+$\quad$ The second question is dealt with the metrics to measure the impurity of the child nodes. Three evaluation metrics are used to measure the impurity of the child nodes. **1) Misclassification error** is the simplest metric to calculate the impurity of the splitted tree. The formula is:
 
 $$
 \text{Misclassification Error} = 1 - \max(p_i)
@@ -506,7 +506,9 @@ $$
 \end{aligned}
 $$
 
-In summary, Entropy mostly handles the limitation of the Gini index and the misclassification error. The following figure shows the comparison of the three metrics for a 2-class problem, where the Entropy represents the maximum impurity among metrics, concluding it as the best metrics.
+With one of these **Gain** results, an attribute that splits the decision tree is chosen.
+
+$\quad$ In summary, Entropy mostly handles the limitation of the Gini index and the misclassification error. The following figure shows the comparison of the three metrics for a 2-class problem, where the Entropy represents the maximum impurity among metrics, concluding it as the best metrics.
 
 ![Comparison of GINI, Entropy, and Missclassification Error](https://www.researchgate.net/publication/339471092/figure/fig1/AS:862307349446657@1582601501720/Relation-among-Entropy-Gini-Index-and-Misclassification-error.ppm) \
 $\text{Fig. 2. Comparison of GINI, Entropy, and Missclassification Error}$ [[4](#mjx-eqn-4)]
